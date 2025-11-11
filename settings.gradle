@@ -11,4 +11,3 @@ plugins {
 }
 
 rootProject.name = 'multi-racingcar'
-include('app')
