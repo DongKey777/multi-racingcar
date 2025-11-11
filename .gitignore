@@ -10,13 +10,11 @@ bin/
 build/
 out/
 
+# Gradle
+.gradle/
+
 # IDE - IntelliJ
 .idea/
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
 *.iml
 
 # IDE - VS Code
