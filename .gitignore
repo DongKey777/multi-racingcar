@@ -1,0 +1,30 @@
+# Compiled class files
+*.class
+
+# Package Files
+*.jar
+*.war
+
+# Build directories
+bin/
+build/
+out/
+
+# IDE - IntelliJ
+.idea/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+*.iml
+
+# IDE - VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
