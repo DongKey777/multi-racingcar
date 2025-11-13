@@ -3,8 +3,12 @@ package infrastructure.http;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +20,7 @@ public class HttpServer {
 
         while (true) {
             Socket client = server.accept();
-
+            System.out.println("연결 완료");
             try {
                 handleClient(client);
             } catch (IOException e) {
@@ -36,6 +40,11 @@ public class HttpServer {
 
         HttpRequest httpRequest = HttpRequest.from(requestLine);
         Map<String, String> headers = parseHeaders(in);
+
+        OutputStream out = client.getOutputStream();
+        HttpResponse response = createResponse(httpRequest);
+
+        response.send(out);
     }
 
     private Map<String, String> parseHeaders(BufferedReader in) throws IOException {
@@ -56,5 +65,51 @@ public class HttpServer {
             }
         }
         return headers;
+    }
+
+    private HttpResponse createResponse(HttpRequest request) {
+        try {
+            String filePath = resolveFilePath(request.getPath());
+            String content = readFile(filePath);
+
+            if (filePath.endsWith(".css")) {
+                return HttpResponse.css(content);
+            }
+
+            if (filePath.endsWith(".js")) {
+                return HttpResponse.js(content);
+            }
+
+            return HttpResponse.ok(content);
+        } catch (IOException e) {
+            System.err.println("❌ 파일 없음: " + e.getMessage());
+            return HttpResponse.notFound();
+        }
+    }
+
+    private String resolveFilePath(String path) {
+        if (path.equals("/")) {
+            return "public/index.html";
+        }
+
+        if (path.startsWith("/css/")) {
+            return "public" + path;
+        }
+
+        if (path.startsWith("/js/")) {
+            return "public" + path;
+        }
+
+        return "public" + path;
+    }
+
+    private String readFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+
+        if (!Files.exists(path)) {
+            throw new IOException("파일 없음: " + filePath);
+        }
+
+        return Files.readString(path);
     }
 }
