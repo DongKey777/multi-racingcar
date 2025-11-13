@@ -1,0 +1,30 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const lastLogin = document.getElementById('last-login');
+    if (lastLogin) {
+        const now = new Date();
+
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        const dayName = days[now.getDay()];
+        const monthName = months[now.getMonth()];
+        const day = now.getDate();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        lastLogin.textContent = `Last login: ${dayName} ${monthName} ${day} ${hours}:${minutes}:${seconds} on ttys021\n`;
+    }
+});
+
+function startGame() {
+    alert('게임 시작!');
+    // TODO: WebSocket 연결
+}
+
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        startGame();
+    }
+});

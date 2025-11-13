@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000000;
+    color: #ffffff;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+    padding: 8px;
+    line-height: 1.2;
+    white-space: pre-wrap;
+}
+
+button {
+    background: none;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    padding: 4px 12px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    margin: 8px 0;
+    display: block;
+}
+
+button:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+.cursor {
+    display: inline-block;
+    width: 7px;
+    height: 13px;
+    background: #ffffff;
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
