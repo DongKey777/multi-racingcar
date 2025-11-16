@@ -1,4 +1,4 @@
-import infrastructure.http.HttpServer;
+import infrastructure.http.server.HttpServer;
 import java.io.IOException;
 
 public class Application {

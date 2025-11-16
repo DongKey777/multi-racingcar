@@ -1,4 +1,4 @@
-package infrastructure.http;
+package infrastructure.http.request;
 
 public class HttpRequest {
     private final String method;

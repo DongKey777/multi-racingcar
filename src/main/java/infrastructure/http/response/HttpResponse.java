@@ -1,4 +1,4 @@
-package infrastructure.http;
+package infrastructure.http.response;
 
 import java.io.IOException;
 import java.io.OutputStream;

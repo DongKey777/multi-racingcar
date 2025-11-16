@@ -1,4 +1,4 @@
-package infrastructure.http;
+package infrastructure.http.response;
 
 public enum HttpStatus {
     OK(200, "OK"),
