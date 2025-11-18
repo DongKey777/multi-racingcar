@@ -8,36 +8,39 @@
 
 ### HTTP 서버
 
-- [ ] ServerSocket으로 8080 포트 서버 실행
-- [ ] HTTP 요청 파싱 (Request Line, Headers)
-- [ ] HTTP 응답 생성 (Status Line, Headers, Body)
-- [ ] 정적 파일 제공 (HTML, CSS, JS)
+- [x] ServerSocket 8080 포트 바인딩
+- [x] HTTP 요청 파싱 (Method, Path, Headers)
+- [x] HTTP 응답 생성 (200 OK, 404 Not Found)
+- [x] 정적 파일 제공 (HTML, CSS, JS)
+- [x] MIME Type 자동 설정
 
 ### WebSocket 서버
 
-- [ ] WebSocket Handshake 처리
-- [ ] WebSocket Frame 파싱
-- [ ] WebSocket Frame 생성
-- [ ] 클라이언트 브로드캐스트
+- [x] Handshake 처리 (Upgrade, Sec-WebSocket-Key/Accept)
+- [x] Frame 파싱 (FIN, Opcode, Mask, Payload)
+- [x] Frame 전송 (Text, 125바이트 이하)
+- [ ] Extended Length 지원 (126, 127)
+- [ ] Ping/Pong, Close Frame 처리
 
 ### 게임 로직
 
-- [ ] 플레이어 입장 (닉네임 입력)
-- [ ] 4명 매칭
-- [ ] 게임 자동 시작 및 진행 (1초 간격, 5라운드)
+- [x] WebSocket 연결
+- [ ] 닉네임 입력 및 플레이어 생성
+- [ ] 4명 매칭 및 대기실
+- [ ] 게임 자동 진행 (1초 간격, 5라운드)
+- [ ] 랜덤 이동 (0 or 1)
 - [ ] 우승자 결정 및 게임 초기화
 
 ### 동시성 제어
 
-- [ ] Thread Pool 적용
-- [ ] Race Condition 방지 (synchronized, ConcurrentHashMap)
+- [x] Thread Pool (CachedThreadPool)
+- [ ] ConcurrentHashMap (플레이어 관리)
+- [ ] synchronized (게임 상태)
 - [ ] 연결 끊김 처리
 
 ### 프론트엔드
 
-- [ ] 게임 화면 (HTML/CSS/JS)
-- [ ] WebSocket 통신 연결
-
-### 배포
-
-- [ ] AWS EC2 배포
+- [x] 터미널 스타일 UI
+- [x] WebSocket 연결
+- [ ] JSON 메시지 송수신
+- [ ] 게임 화면 (대기/진행/결과)
