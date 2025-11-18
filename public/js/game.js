@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const lastLogin = document.getElementById('last-login');
     if (lastLogin) {
         const now = new Date();
@@ -18,12 +18,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+let ws = null;
+
 function startGame() {
-    alert('게임 시작!');
-    // TODO: WebSocket 연결
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        log('Already connected.');
+        return;
+    }
+
+    log('Connecting to server...');
+
+    ws = new WebSocket('ws://localhost:8080/ws');
+
+    ws.onopen = function () {
+        log('Connected to server');
+        log('Waiting for players... (1/4)');
+        log('');
+
+        ws.send('Player joined');
+    };
+
+    ws.onmessage = function (event) {
+        log('Server: ' + event.data);
+    };
+
+    ws.onerror = function (error) {
+        log('Connection failed');
+        console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = function () {
+        log('Connection closed');
+        ws = null;
+    };
 }
 
-document.addEventListener('keypress', function(e) {
+function log(message) {
+    document.body.innerHTML += message + '\n';
+
+    window.scrollTo(0, document.body.scrollHeight);
+}
+
+document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         startGame();
     }
