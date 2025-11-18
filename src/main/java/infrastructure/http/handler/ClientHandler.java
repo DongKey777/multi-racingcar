@@ -3,6 +3,8 @@ package infrastructure.http.handler;
 import infrastructure.http.request.HttpRequest;
 import infrastructure.http.response.HttpResponse;
 import infrastructure.http.router.Router;
+import infrastructure.websocket.WebSocketHandler;
+import infrastructure.websocket.WebSocketHandshake;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,6 +36,11 @@ public class ClientHandler {
             System.out.println("📥 " + requestLine);
             Map<String, String> headers = parseHeaders(in);
 
+            if (isWebSocketRequest(headers)) {
+                handleWebSocket(headers, out);
+                return;
+            }
+
             HttpRequest request = HttpRequest.from(requestLine);
             HttpResponse response = router.route(request);
 
@@ -64,6 +71,31 @@ public class ClientHandler {
             }
         }
         return headers;
+    }
+
+    private boolean isWebSocketRequest(Map<String, String> headers) {
+        String upgrade = headers.get("Upgrade");
+        String key = headers.get("Sec-WebSocket-Key");
+
+        return upgrade != null
+                && upgrade.equalsIgnoreCase("websocket")
+                && key != null;
+    }
+
+    private void handleWebSocket(Map<String, String> headers, OutputStream out)
+            throws IOException {
+        System.out.println("WebSocket Handshake");
+
+        String clientKey = headers.get("Sec-WebSocket-Key");
+        String response = WebSocketHandshake.createResponse(clientKey);
+
+        out.write(response.getBytes());
+        out.flush();
+
+        System.out.println("Handshake 완료");
+
+        WebSocketHandler handler = new WebSocketHandler(client);
+        handler.handle();
     }
 
     private void close(Socket socket) {
