@@ -14,6 +14,19 @@ body {
     white-space: pre-wrap;
 }
 
+/* input 스타일 추가 */
+input[type="text"] {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    width: 200px;
+}
+
 button {
     background: none;
     color: #ffffff;
@@ -23,7 +36,7 @@ button {
     font-size: 11px;
     cursor: pointer;
     margin: 8px 0;
-    display: block;
+    display: inline-block;
 }
 
 button:hover {
