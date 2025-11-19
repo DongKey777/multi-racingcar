@@ -20,13 +20,38 @@ public class GameRoom {
         this.gameStarted = false;
     }
 
+    public boolean addPlayer(String nickname) {
+        if (players.isFull()) {
+            return false;
+        }
+
+        if (isGameStarted()) {
+            return false;
+        }
+
+        try {
+            players.add(nickname);
+            System.out.println("플레이어 입장: " + nickname +
+                    " (" + players.size() + "/4)");
+
+            if (players.isFull()) {
+                start();
+            }
+
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println("입장 실패: " + e.getMessage());
+            return false;
+        }
+    }
+
     public void start() {
         if (gameStarted) {
             throw new IllegalStateException("이미 게임이 시작되었습니다");
         }
 
         gameStarted = true;
-        System.out.println("게임 시작!");
+        System.out.println("\n게임 시작!");
 
         scheduler.scheduleAtFixedRate(() -> {
             playOneRound();
@@ -70,6 +95,10 @@ public class GameRoom {
 
     public Players getPlayers() {
         return players;
+    }
+
+    public boolean isFull() {
+        return players.isFull();
     }
 
     public int getCurrentRound() {
