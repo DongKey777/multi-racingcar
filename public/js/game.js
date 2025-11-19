@@ -24,40 +24,32 @@ let inputMode = 'nickname';
 
 function showNicknamePrompt() {
     const content = document.getElementById('content');
-    content.innerHTML = 'Enter your nickname: <input type="text" id="nickname-input" maxlength="10" />';
+    content.innerHTML = 'Enter your nickname: <input type="text" id="nickname-input" maxlength="10" autofocus />';
 
     const input = document.getElementById('nickname-input');
 
-    setTimeout(() => input.focus(), 0);
     setTimeout(() => input.focus(), 100);
-    setTimeout(() => input.focus(), 300);
 
-    document.addEventListener('keydown', function (e) {
-        if (inputMode === 'nickname' && document.activeElement !== input) {
-            input.focus();
-        }
-    });
-
-    document.body.addEventListener('click', function () {
-        if (inputMode === 'nickname') {
-            input.focus();
-        }
-    });
-
-    input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const nickname = input.value.trim();
-
-            if (nickname.length === 0) {
-                return;
-            }
-
-            showConnectButton(nickname);
-        }
-    });
+    input.addEventListener('keydown', handleNicknameInput);
 
     inputMode = 'nickname';
+}
+
+function handleNicknameInput(e) {
+    const input = document.getElementById('nickname-input');
+
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const nickname = input.value.trim();
+
+        if (nickname.length === 0) {
+            return;
+        }
+
+        input.removeEventListener('keydown', handleNicknameInput);
+
+        showConnectButton(nickname);
+    }
 }
 
 function showConnectButton(nickname) {
@@ -72,6 +64,7 @@ function showConnectButton(nickname) {
 
 function connectToServer(nickname) {
     if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log('Already connected');
         return;
     }
 
@@ -84,6 +77,7 @@ function connectToServer(nickname) {
     ws = new WebSocket('ws://localhost:8080/ws');
 
     ws.onopen = function () {
+        console.log('WebSocket opened');
         content.innerHTML += 'Connected to server\n\n';
         content.innerHTML += 'Joining as: ' + nickname + '\n';
 
@@ -92,16 +86,18 @@ function connectToServer(nickname) {
     };
 
     ws.onmessage = function (event) {
+        console.log('Message received:', event.data);
         content.innerHTML += event.data + '\n';
         window.scrollTo(0, document.body.scrollHeight);
     };
 
     ws.onerror = function (error) {
-        content.innerHTML += 'Connection failed\n';
         console.error('WebSocket error:', error);
+        content.innerHTML += 'Connection failed\n';
     };
 
     ws.onclose = function () {
+        console.log('WebSocket closed');
         content.innerHTML += 'Connection closed\n';
         ws = null;
     };

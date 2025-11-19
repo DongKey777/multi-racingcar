@@ -1,13 +1,23 @@
 package domain.game;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class GameRoomManager {
     private static GameRoomManager instance;
+    private final Map<Integer, GameRoom> activeRooms;
+    private final AtomicInteger roomIdCounter;
     private Players waitingPlayers;
-    private GameRoom currentRoom;
+    private int currentRoomId;
 
     private GameRoomManager() {
+        this.activeRooms = new ConcurrentHashMap<>();
+        this.roomIdCounter = new AtomicInteger(1);
         this.waitingPlayers = new Players();
-        this.currentRoom = null;
+        this.currentRoomId = 0;
     }
 
     public static synchronized GameRoomManager getInstance() {
@@ -18,18 +28,13 @@ public class GameRoomManager {
     }
 
     public synchronized boolean addPlayer(String nickname) {
-        if (currentRoom != null && currentRoom.isGameStarted()) {
-            System.out.println("게임 진행 중입니다.");
-            return false;
-        }
-
         try {
             waitingPlayers.add(nickname);
             System.out.println("플레이어 입장: " + nickname +
-                    " (" + waitingPlayers.size() + "/4)");
+                    " (대기: " + waitingPlayers.size() + "/4)");
 
             if (waitingPlayers.isFull()) {
-                startGame();
+                createAndStartGame();
             }
 
             return true;
@@ -39,22 +44,52 @@ public class GameRoomManager {
         }
     }
 
-    private void startGame() {
+    private void createAndStartGame() {
+        int roomId = roomIdCounter.getAndIncrement();
+
         String[] nicknames = waitingPlayers.getPlayers().stream()
                 .map(Player::getNickname)
                 .toArray(String[]::new);
 
-        currentRoom = new GameRoom(nicknames);
-        currentRoom.start();
+        GameRoom room = new GameRoom(nicknames);
+        activeRooms.put(roomId, room);
 
+        System.out.println("\n🎮 게임룸 #" + roomId + " 생성!");
+        System.out.println("참가자: " + String.join(", ", nicknames));
+
+        room.start();
         waitingPlayers = new Players();
+        scheduleRoomCleanup(roomId, 10);
     }
 
-    public GameRoom getCurrentRoom() {
-        return currentRoom;
+    private void scheduleRoomCleanup(int roomId, int delaySeconds) {
+        new Thread(() -> {
+            try {
+                Thread.sleep(delaySeconds * 1000);
+                activeRooms.remove(roomId);
+                System.out.println("🗑️ 게임룸 #" + roomId + " 정리 완료");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public int getWaitingCount() {
         return waitingPlayers.size();
+    }
+
+    public int getActiveRoomCount() {
+        return activeRooms.size();
+    }
+
+    public List<GameRoom> getActiveRooms() {
+        return new ArrayList<>(activeRooms.values());
+    }
+
+    public void printStats() {
+        System.out.println("\n📊 서버 통계");
+        System.out.println("대기 중: " + waitingPlayers.size() + "/4");
+        System.out.println("진행 중인 게임: " + activeRooms.size() + "개");
+        System.out.println("총 생성된 게임: " + (roomIdCounter.get() - 1) + "개");
     }
 }

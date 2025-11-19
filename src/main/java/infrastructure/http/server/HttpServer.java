@@ -23,7 +23,8 @@ public class HttpServer {
             System.out.println("연결 완료");
 
             ClientHandler handler = new ClientHandler(client, router);
-            handler.handle();
+            Thread thread = new Thread(handler::handle);
+            thread.start();
         }
     }
 }
