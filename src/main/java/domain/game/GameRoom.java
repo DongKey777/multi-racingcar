@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GameRoom {
     private static final int MAX_ROUNDS = 5;
-
+    
     private final Players players;
     private final ScheduledExecutorService scheduler;
     private int currentRound;
