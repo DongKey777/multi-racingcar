@@ -1,5 +1,6 @@
 package domain.game;
 
+import infrastructure.websocket.SessionManager;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -7,42 +8,19 @@ import java.util.concurrent.TimeUnit;
 
 public class GameRoom {
     private static final int MAX_ROUNDS = 5;
-    
+
     private final Players players;
     private final ScheduledExecutorService scheduler;
+    private final SessionManager sessionManager;
     private int currentRound;
     private boolean gameStarted;
 
     public GameRoom(String[] nicknames) {
         this.players = new Players(nicknames);
         this.scheduler = Executors.newScheduledThreadPool(1);
+        this.sessionManager = SessionManager.getInstance();
         this.currentRound = 0;
         this.gameStarted = false;
-    }
-
-    public boolean addPlayer(String nickname) {
-        if (players.isFull()) {
-            return false;
-        }
-
-        if (isGameStarted()) {
-            return false;
-        }
-
-        try {
-            players.add(nickname);
-            System.out.println("플레이어 입장: " + nickname +
-                    " (" + players.size() + "/4)");
-
-            if (players.isFull()) {
-                start();
-            }
-
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println("입장 실패: " + e.getMessage());
-            return false;
-        }
     }
 
     public void start() {
@@ -52,6 +30,8 @@ public class GameRoom {
 
         gameStarted = true;
         System.out.println("\n게임 시작!");
+
+        sessionManager.broadcast("\n게임 시작!\n");
 
         scheduler.scheduleAtFixedRate(() -> {
             playOneRound();
@@ -67,38 +47,51 @@ public class GameRoom {
         currentRound++;
         System.out.println("\n=== Round " + currentRound + " ===");
 
+        sessionManager.broadcast("\n=== Round " + currentRound + " ===");
+
         players.moveAll();
         printRoundResult();
     }
 
     private void printRoundResult() {
+        StringBuilder result = new StringBuilder();
+
         for (Player player : players.getPlayers()) {
-            System.out.println(player.getNickname() + " : " + "-".repeat(player.getPosition()));
+            String line = player.getNickname() + " : " + "-".repeat(player.getPosition());
+            System.out.println(line);
+            result.append(line).append("\n");
         }
+
+        sessionManager.broadcast(result.toString());
     }
 
     private void endGame() {
         scheduler.shutdown();
 
         System.out.println("\n게임 종료!");
-        System.out.print("최종 우승자 : ");
+
+        sessionManager.broadcast("\n게임 종료!");
 
         List<Player> winners = players.getWinners();
+        StringBuilder winnerMessage = new StringBuilder("🏆 최종 우승자: ");
+
         for (int i = 0; i < winners.size(); i++) {
-            System.out.print(winners.get(i).getNickname());
+            String name = winners.get(i).getNickname();
+            System.out.print(name);
+            winnerMessage.append(name);
+
             if (i < winners.size() - 1) {
                 System.out.print(", ");
+                winnerMessage.append(", ");
             }
         }
         System.out.println();
+
+        sessionManager.broadcast(winnerMessage.toString());
     }
 
     public Players getPlayers() {
         return players;
-    }
-
-    public boolean isFull() {
-        return players.isFull();
     }
 
     public int getCurrentRound() {
