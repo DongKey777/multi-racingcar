@@ -24,7 +24,6 @@ public class WebSocketHandler {
 
                 String response = "서버: " + message;
                 WebSocketFrame.writeText(out, response);
-                System.out.println("메시지 보냄: " + response);
             }
 
         } catch (Exception e) {

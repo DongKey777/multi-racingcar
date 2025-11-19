@@ -8,10 +8,34 @@ public class Players {
     private static final int MAX_PLAYERS = 4;
     private final List<Player> players = new ArrayList<>();
 
+    public Players() {
+    }
+
     public Players(String[] nicknames) {
         validateDuplicatedNickname(nicknames);
         validatePlayerCount(nicknames);
         Arrays.stream(nicknames).forEach(name -> players.add(new Player(name)));
+    }
+
+    public void add(String nickname) {
+        if (isFull()) {
+            throw new IllegalStateException("플레이어가 가득 찼습니다.");
+        }
+
+        if (hasDuplicate(nickname)) {
+            throw new IllegalArgumentException("중복된 닉네임입니다: " + nickname);
+        }
+
+        players.add(new Player(nickname));
+    }
+
+    private boolean hasDuplicate(String nickname) {
+        return players.stream()
+                .anyMatch(player -> player.getNickname().equals(nickname));
+    }
+
+    public boolean isFull() {
+        return players.size() >= MAX_PLAYERS;
     }
 
     private void validateDuplicatedNickname(String[] nicknames) {
