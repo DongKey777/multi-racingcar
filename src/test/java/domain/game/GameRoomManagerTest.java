@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,9 @@ class GameRoomManagerTest {
     @Test
     @DisplayName("플레이어를 추가할 수 있다")
     void addPlayer() {
-        boolean result = manager.addPlayer("테스트유저");
+        String uniqueNickname = "테스트" + UUID.randomUUID().toString().substring(0, 8);
+
+        boolean result = manager.addPlayer(uniqueNickname);
 
         assertTrue(result);
     }
@@ -36,9 +39,10 @@ class GameRoomManagerTest {
     @Test
     @DisplayName("중복된 닉네임은 추가할 수 없다")
     void cannotAddDuplicatePlayer() {
-        manager.addPlayer("테스트유저");
+        String uniqueNickname = "중복테스트" + UUID.randomUUID().toString().substring(0, 8);
+        manager.addPlayer(uniqueNickname);
 
-        boolean result = manager.addPlayer("테스트유저");
+        boolean result = manager.addPlayer(uniqueNickname);
 
         assertFalse(result);
     }
