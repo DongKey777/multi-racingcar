@@ -32,10 +32,12 @@ function startGame() {
 
     ws.onopen = function () {
         log('Connected to server');
-        log('Waiting for players... (1/4)');
         log('');
 
-        ws.send('Player joined');
+        const nickname = prompt('Enter your nickname:') || 'Player';
+        log('Joining as: ' + nickname);
+
+        ws.send(nickname);
     };
 
     ws.onmessage = function (event) {
@@ -55,12 +57,11 @@ function startGame() {
 
 function log(message) {
     document.body.innerHTML += message + '\n';
-
     window.scrollTo(0, document.body.scrollHeight);
 }
 
 document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !ws) {
         startGame();
     }
 });
