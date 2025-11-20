@@ -44,6 +44,11 @@ button:hover {
     color: #000000;
 }
 
+#restart-section {
+    margin-top: 16px;
+    padding-top: 8px;
+}
+
 .cursor {
     display: inline-block;
     width: 7px;
