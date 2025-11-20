@@ -1,5 +1,7 @@
 package domain.game;
 
+import domain.strategy.MovingStrategy;
+import domain.strategy.RandomMovingStrategy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,11 +9,22 @@ import java.util.List;
 public class Players {
     private static final int MAX_PLAYERS = 4;
     private final List<Player> players = new ArrayList<>();
+    private final MovingStrategy movingStrategy;
 
     public Players() {
+        this(new RandomMovingStrategy());
+    }
+
+    public Players(MovingStrategy movingStrategy) {
+        this.movingStrategy = movingStrategy;
     }
 
     public Players(String[] nicknames) {
+        this(nicknames, new RandomMovingStrategy());
+    }
+
+    public Players(String[] nicknames, MovingStrategy movingStrategy) {
+        this.movingStrategy = movingStrategy;
         validateDuplicatedNickname(nicknames);
         validatePlayerCount(nicknames);
         Arrays.stream(nicknames).forEach(name -> players.add(new Player(name)));
@@ -52,14 +65,9 @@ public class Players {
 
     public void moveAll() {
         for (Player player : players) {
-            moveRandomly(player);
-        }
-    }
-
-    private void moveRandomly(Player player) {
-        int random = (int) (Math.random() * 2);
-        if (random == 1) {
-            player.moveForward();
+            if (movingStrategy.shouldMove()) {
+                player.moveForward();
+            }
         }
     }
 
