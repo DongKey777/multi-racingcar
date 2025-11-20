@@ -31,8 +31,7 @@ public class GameRoom {
 
         gameStarted = true;
         System.out.println("\n게임 시작!");
-
-        sessionManager.broadcast("\n게임 시작!\n");
+        broadcastToPlayers("\n게임 시작!\n");
 
         scheduler.scheduleAtFixedRate(() -> {
             playOneRound();
@@ -47,8 +46,7 @@ public class GameRoom {
 
         round = round.next();
         System.out.println("\n=== Round " + round.getCurrent() + " ===");
-
-        sessionManager.broadcast("\n=== Round " + round.getCurrent() + " ===");
+        broadcastToPlayers("\n=== Round " + round.getCurrent() + " ===");
 
         players.moveAll();
         printRoundResult();
@@ -63,15 +61,14 @@ public class GameRoom {
             result.append(line).append("\n");
         }
 
-        sessionManager.broadcast(result.toString());
+        broadcastToPlayers(result.toString());
     }
 
     private void endGame() {
         scheduler.shutdown();
 
         System.out.println("\n게임 종료!");
-
-        sessionManager.broadcast("\n게임 종료!");
+        broadcastToPlayers("\n게임 종료!");
 
         List<Player> winners = players.getWinners();
         StringBuilder winnerMessage = new StringBuilder("🏆 최종 우승자: ");
@@ -88,7 +85,13 @@ public class GameRoom {
         }
         System.out.println();
 
-        sessionManager.broadcast(winnerMessage.toString());
+        broadcastToPlayers(winnerMessage.toString());
+    }
+
+    private void broadcastToPlayers(String message) {
+        for (Player player : players.getPlayers()) {
+            sessionManager.sendTo(player.getNickname(), message);
+        }
     }
 
     public Players getPlayers() {
