@@ -54,6 +54,7 @@ public class WebSocketHandler {
         } finally {
             if (nickname != null) {
                 SessionManager.getInstance().remove(nickname);
+                GameRoomManager.getInstance().removePlayer(nickname);
             }
         }
     }

@@ -81,4 +81,8 @@ public class Players {
     public int size() {
         return players.size();
     }
+
+    public void remove(String nickname) {
+        players.removeIf(player -> player.getNickname().equals(nickname));
+    }
 }

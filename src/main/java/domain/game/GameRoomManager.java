@@ -90,6 +90,12 @@ public class GameRoomManager {
         return new ArrayList<>(activeRooms.values());
     }
 
+    public synchronized void removePlayer(String nickname) {
+        waitingPlayers.remove(nickname);
+        System.out.println("플레이어 제거: " + nickname +
+                " (대기: " + waitingPlayers.size() + "/4)");
+    }
+
     public void printStats() {
         System.out.println("\n📊 서버 통계");
         System.out.println("대기 중: " + waitingPlayers.size() + "/4");
