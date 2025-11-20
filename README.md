@@ -1,4 +1,4 @@
-# Racing Car From Scratch
+# Multi Racing Car Game
 
 프레임워크 없이 Java로 만드는 실시간 4인 멀티플레이 레이싱 게임
 
