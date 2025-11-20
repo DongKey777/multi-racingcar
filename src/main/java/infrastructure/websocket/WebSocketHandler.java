@@ -84,12 +84,37 @@ public class WebSocketHandler {
     private void processGameMessages(InputStream in, WebSocketSession session, String nickname) throws Exception {
         while (true) {
             String msg = WebSocketFrame.readText(in);
-            System.out.println("메시지 받음 [" + nickname + "]: " + msg);
 
-            if (session != null) {
-                session.send("서버: " + msg);
+            if (isConnectionClosed(msg, nickname)) {
+                break;
+            }
+
+            if (!sendMessageToClient(session, msg, nickname)) {
+                break;
             }
         }
+    }
+
+    private boolean isConnectionClosed(String message, String nickname) {
+        if (message == null || message.trim().isEmpty()) {
+            System.out.println("연결 종료 감지 [" + nickname + "]: 빈 메시지");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean sendMessageToClient(WebSocketSession session, String message, String nickname) {
+        System.out.println("메시지 받음 [" + nickname + "]: " + message);
+
+        if (session == null || !session.isConnected()) {
+            return false;
+        }
+
+        boolean success = session.send("서버: " + message);
+        if (!success) {
+            System.out.println("메시지 전송 실패로 연결 종료 [" + nickname + "]");
+        }
+        return success;
     }
 
     private void cleanupPlayer(String nickname) {
