@@ -15,11 +15,17 @@ public class WebSocketSession {
         this.nickname = nickname;
     }
 
-    public void send(String message) {
+    public boolean send(String message) {
+        if (!isConnected()) {
+            return false;
+        }
+
         try {
             WebSocketFrame.writeText(out, message);
+            return true;
         } catch (IOException e) {
             System.out.println("메시지 전송 실패 [" + nickname + "]: " + e.getMessage());
+            return false;
         }
     }
 
@@ -28,7 +34,15 @@ public class WebSocketSession {
     }
 
     public boolean isConnected() {
-        return socket != null && !socket.isClosed();
+        if (socket == null || socket.isClosed()) {
+            return false;
+        }
+
+        try {
+            return !socket.isOutputShutdown() && !socket.isInputShutdown();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void close() {

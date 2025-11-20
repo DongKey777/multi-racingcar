@@ -20,19 +20,19 @@ public class SessionManager {
 
     public void add(String nickname, WebSocketSession session) {
         sessions.put(nickname, session);
-        System.out.println("✅ 세션 등록: " + nickname + " (총 " + sessions.size() + "명)");
+        System.out.println("세션 등록: " + nickname + " (총 " + sessions.size() + "명)");
     }
 
     public void remove(String nickname) {
         WebSocketSession session = sessions.remove(nickname);
         if (session != null) {
             session.close();
-            System.out.println("❌ 세션 제거: " + nickname + " (남은 " + sessions.size() + "명)");
+            System.out.println("세션 제거: " + nickname + " (남은 " + sessions.size() + "명)");
         }
     }
 
     public void broadcast(String message) {
-        System.out.println("📢 브로드캐스트 → " + sessions.size() + "명: " + message.trim());
+        System.out.println("브로드캐스트 → " + sessions.size() + "명: " + message.trim());
         sessions.values().forEach(session -> {
             if (session.isConnected()) {
                 session.send(message);
@@ -42,10 +42,34 @@ public class SessionManager {
 
     public void sendTo(String nickname, String message) {
         WebSocketSession session = sessions.get(nickname);
-        if (session != null && session.isConnected()) {
-            session.send(message);
-            System.out.println("📨 개별 전송 → " + nickname + ": " + message.trim());
+        if (session == null) {
+            return;
         }
+
+        if (!session.isConnected()) {
+            removeDeadSession(nickname);
+            return;
+        }
+
+        boolean success = session.send(message);
+        if (success) {
+            System.out.println("개별 전송 -> " + nickname + ": " + message.trim());
+        } else {
+            removeDeadSession(nickname);
+        }
+    }
+
+    private void removeDeadSession(String nickname) {
+        WebSocketSession session = sessions.remove(nickname);
+        if (session != null) {
+            session.close();
+            System.out.println("끊어진 세션 자동 제거: " + nickname);
+        }
+    }
+
+    public boolean hasActiveSession(String nickname) {
+        WebSocketSession session = sessions.get(nickname);
+        return session != null && session.isConnected();
     }
 
     public int getActiveSessionCount() {
