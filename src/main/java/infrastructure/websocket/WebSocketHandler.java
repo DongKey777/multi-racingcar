@@ -23,38 +23,48 @@ public class WebSocketHandler {
         ) {
             System.out.println("WebSocket 시작");
 
-            String message = WebSocketFrame.readText(in);
-            System.out.println("첫 메시지 수신: " + message);
-
-            PlayerInfo playerInfo = parsePlayerInfo(message);
-            nickname = playerInfo.nickname;
-            GameMode mode = playerInfo.mode;
-
-            System.out.println("플레이어 입장 시도: " + nickname + " (모드: " + mode + ")");
-
+            GameMode mode = null;
             GameRoomManager manager = GameRoomManager.getInstance();
-            PlayerJoinResult result = manager.addPlayer(nickname, mode);
+            WebSocketSession session = null;
 
-            if (!result.isSuccess()) {
-                WebSocketFrame.writeText(out, "입장 실패 (중복 닉네임)");
-                System.out.println("입장 실패: " + nickname);
-                return;
+            while (nickname == null) {
+                String message = WebSocketFrame.readText(in);
+                System.out.println("메시지 수신: " + message);
+
+                PlayerInfo playerInfo = parsePlayerInfo(message);
+                String attemptNickname = playerInfo.nickname;
+                mode = playerInfo.mode;
+
+                System.out.println("플레이어 입장 시도: " + attemptNickname + " (모드: " + mode + ")");
+
+                PlayerJoinResult result = manager.addPlayer(attemptNickname, mode);
+
+                if (!result.isSuccess()) {
+                    WebSocketFrame.writeText(out, "입장 실패 (중복 닉네임). 다른 닉네임을 입력해주세요.");
+                    System.out.println("입장 실패: " + attemptNickname);
+                    continue; // 다시 닉네임 입력 대기
+                }
+
+                // 입장 성공
+                nickname = attemptNickname;
+                session = new WebSocketSession(socket, nickname);
+                SessionManager.getInstance().add(nickname, session);
+
+                String welcomeMessage = mode == GameMode.SINGLE
+                        ? "입장 성공! 싱글 플레이 시작..."
+                        : "입장 성공! 대기 중... (" + result.getWaitingCount() + "/4)";
+                session.send(welcomeMessage);
+                System.out.println("입장 성공: " + nickname);
             }
 
-            WebSocketSession session = new WebSocketSession(socket, nickname);
-            SessionManager.getInstance().add(nickname, session);
-
-            String welcomeMessage = mode == GameMode.SINGLE
-                    ? "입장 성공! 싱글 플레이 시작..."
-                    : "입장 성공! 대기 중... (" + result.getWaitingCount() + "/4)";
-            session.send(welcomeMessage);
-            System.out.println("입장 성공: " + nickname);
-
+            // 게임 중 메시지 처리
             while (true) {
                 String msg = WebSocketFrame.readText(in);
                 System.out.println("메시지 받음 [" + nickname + "]: " + msg);
 
-                session.send("서버: " + msg);
+                if (session != null) {
+                    session.send("서버: " + msg);
+                }
             }
 
         } catch (Exception e) {

@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.focus();
             }
         }
+
+        // 재시도 입력창도 포커스
+        const retryInput = document.getElementById('nickname-input-retry');
+        if (retryInput) {
+            retryInput.focus();
+        }
     });
 });
 
@@ -137,6 +143,35 @@ function connectToServer(nickname) {
         console.log('Message received:', event.data);
         content.innerHTML += event.data + '\n';
         window.scrollTo(0, document.body.scrollHeight);
+
+        if (event.data.includes('입장 실패')) {
+            content.innerHTML += '\nEnter your nickname: <input type="text" id="nickname-input-retry" maxlength="10" autofocus />\n';
+
+            const retryInput = document.getElementById('nickname-input-retry');
+            setTimeout(() => retryInput.focus(), 100);
+
+            retryInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const newNickname = retryInput.value.trim();
+
+                    if (newNickname.length === 0) {
+                        return;
+                    }
+
+                    retryInput.remove();
+                    content.innerHTML += newNickname + '\n\nRetrying...\n';
+
+                    const message = JSON.stringify({
+                        nickname: newNickname,
+                        mode: selectedMode || 'MULTI'
+                    });
+                    ws.send(message);
+                    currentNickname = newNickname;
+                }
+            });
+            return;
+        }
 
         if (event.data.includes('게임 종료') || event.data.includes('최종 우승자')) {
             setTimeout(showRestartButton, 1000);
