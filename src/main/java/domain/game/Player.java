@@ -1,26 +1,30 @@
 package domain.game;
 
+import domain.vo.Nickname;
+import domain.vo.Position;
+
 public class Player {
-    private final String nickname;
-    private int position;
     private static final int MAX_NICKNAME_LENGTH = 10;
+
+    private final Nickname nickname;
+    private Position position;
 
     public Player(String nickname) {
         validateNicknameLength(nickname);
-        this.nickname = nickname;
-        this.position = 0;
+        this.nickname = new Nickname(nickname);
+        this.position = new Position(0);
     }
 
     public int getPosition() {
-        return position;
+        return position.getValue();
     }
 
     public String getNickname() {
-        return nickname;
+        return nickname.getValue();
     }
 
     public void moveForward() {
-        position += 1;
+        position = position.moveForward();
     }
 
     private void validateNicknameLength(String nickname) {

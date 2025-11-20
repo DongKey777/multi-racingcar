@@ -1,5 +1,6 @@
 package domain.game;
 
+import domain.vo.Round;
 import infrastructure.websocket.SessionManager;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -12,14 +13,14 @@ public class GameRoom {
     private final Players players;
     private final ScheduledExecutorService scheduler;
     private final SessionManager sessionManager;
-    private int currentRound;
+    private Round round;
     private boolean gameStarted;
 
     public GameRoom(String[] nicknames) {
         this.players = new Players(nicknames);
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.sessionManager = SessionManager.getInstance();
-        this.currentRound = 0;
+        this.round = new Round(0, MAX_ROUNDS);
         this.gameStarted = false;
     }
 
@@ -39,15 +40,15 @@ public class GameRoom {
     }
 
     private void playOneRound() {
-        if (currentRound >= MAX_ROUNDS) {
+        if (round.isLast()) {
             endGame();
             return;
         }
 
-        currentRound++;
-        System.out.println("\n=== Round " + currentRound + " ===");
+        round = round.next();
+        System.out.println("\n=== Round " + round.getCurrent() + " ===");
 
-        sessionManager.broadcast("\n=== Round " + currentRound + " ===");
+        sessionManager.broadcast("\n=== Round " + round.getCurrent() + " ===");
 
         players.moveAll();
         printRoundResult();
@@ -95,7 +96,7 @@ public class GameRoom {
     }
 
     public int getCurrentRound() {
-        return currentRound;
+        return round.getCurrent();
     }
 
     public boolean isGameStarted() {

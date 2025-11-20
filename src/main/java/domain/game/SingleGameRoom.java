@@ -1,5 +1,6 @@
 package domain.game;
 
+import domain.vo.Round;
 import infrastructure.websocket.SessionManager;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,14 +12,14 @@ public class SingleGameRoom {
     private final Player player;
     private final ScheduledExecutorService scheduler;
     private final SessionManager sessionManager;
-    private int currentRound;
+    private Round round;
     private boolean gameStarted;
 
     public SingleGameRoom(String nickname) {
         this.player = new Player(nickname);
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.sessionManager = SessionManager.getInstance();
-        this.currentRound = 0;
+        this.round = new Round(0, MAX_ROUNDS);
         this.gameStarted = false;
     }
 
@@ -38,15 +39,15 @@ public class SingleGameRoom {
     }
 
     private void playOneRound() {
-        if (currentRound >= MAX_ROUNDS) {
+        if (round.isLast()) {
             endGame();
             return;
         }
 
-        currentRound++;
-        System.out.println("\n=== Round " + currentRound + " ===");
+        round = round.next();
+        System.out.println("\n=== Round " + round.getCurrent() + " ===");
 
-        sessionManager.sendTo(player.getNickname(), "\n=== Round " + currentRound + " ===");
+        sessionManager.sendTo(player.getNickname(), "\n=== Round " + round.getCurrent() + " ===");
 
         moveRandomly();
         printRoundResult();
@@ -71,7 +72,7 @@ public class SingleGameRoom {
         System.out.println("\n게임 종료!");
         sessionManager.sendTo(player.getNickname(), "\n게임 종료!");
 
-        String winnerMessage = "🏆 최종 위치: " + player.getPosition() + "칸";
+        String winnerMessage = "최종 위치: " + player.getPosition() + "칸";
         System.out.println(winnerMessage);
         sessionManager.sendTo(player.getNickname(), winnerMessage);
     }
@@ -81,7 +82,7 @@ public class SingleGameRoom {
     }
 
     public int getCurrentRound() {
-        return currentRound;
+        return round.getCurrent();
     }
 
     public boolean isGameStarted() {

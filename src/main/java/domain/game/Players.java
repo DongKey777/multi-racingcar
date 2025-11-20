@@ -19,7 +19,7 @@ public class Players {
 
     public void add(String nickname) {
         if (isFull()) {
-            throw new IllegalStateException("플레이어가 가득 찼습니다.");
+            throw new IllegalStateException("플레이어가 가득 찼습니다");
         }
 
         if (hasDuplicate(nickname)) {
@@ -57,7 +57,7 @@ public class Players {
     }
 
     private void moveRandomly(Player player) {
-        int random = (int) (Math.random() * 2);  // 0 or 1
+        int random = (int) (Math.random() * 2);
         if (random == 1) {
             player.moveForward();
         }
