@@ -81,7 +81,7 @@ public class GameRoom {
         List<Player> winners = players.getWinners();
         String winnerMessage = formatWinnerMessage(winners);
         System.out.println(winnerMessage);
-        broadcastToPlayers("🏆 최종 우승자: " + winnerMessage);
+        broadcastToPlayers("최종 우승자: " + winnerMessage);
     }
 
     private String formatWinnerMessage(List<Player> winners) {
@@ -96,8 +96,36 @@ public class GameRoom {
     }
 
     private void broadcastToPlayers(String message) {
+        int connectedCount = 0;
+        boolean anySessionExists = false;
+
         for (Player player : players.getPlayers()) {
-            sessionManager.sendTo(player.getNickname(), message);
+            String nickname = player.getNickname();
+            if (!sessionManager.hasSession(nickname)) {
+                continue;
+            }
+
+            anySessionExists = true;
+            if (sessionManager.hasActiveSession(nickname)) {
+                sessionManager.sendTo(nickname, message);
+                connectedCount++;
+            }
+        }
+
+        checkAndTerminateIfAllDisconnected(anySessionExists, connectedCount);
+    }
+
+    private void checkAndTerminateIfAllDisconnected(boolean anySessionExists, int connectedCount) {
+        if (anySessionExists && connectedCount == 0 && gameStarted) {
+            System.out.println("[경고] 모든 플레이어 연결 끊김 - 게임 중단");
+            endGameEarly();
+        }
+    }
+
+    private void endGameEarly() {
+        if (!scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+            System.out.println("게임 조기 종료 (연결 끊김)");
         }
     }
 
