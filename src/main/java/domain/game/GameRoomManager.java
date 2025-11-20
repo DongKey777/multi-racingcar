@@ -1,26 +1,18 @@
 package domain.game;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameRoomManager {
     private static GameRoomManager instance;
-    private final Map<Integer, GameRoom> activeRooms;
+    private final RoomRegistry roomRegistry;
     private final AtomicInteger roomIdCounter;
     private Players waitingPlayers;
-    private int currentRoomId;
-
-    private final Map<Integer, SingleGameRoom> activeSingleRooms;
 
     private GameRoomManager() {
-        this.activeRooms = new ConcurrentHashMap<>();
-        this.activeSingleRooms = new ConcurrentHashMap<>();
+        this.roomRegistry = new RoomRegistry();
         this.roomIdCounter = new AtomicInteger(1);
         this.waitingPlayers = new Players();
-        this.currentRoomId = 0;
     }
 
     public static synchronized GameRoomManager getInstance() {
@@ -72,9 +64,9 @@ public class GameRoomManager {
         int roomId = roomIdCounter.getAndIncrement();
 
         SingleGameRoom room = new SingleGameRoom(nickname);
-        activeSingleRooms.put(roomId, room);
+        roomRegistry.addSingleRoom(roomId, room);
 
-        System.out.println("\n🎮 싱글 게임룸 #" + roomId + " 생성!");
+        System.out.println("\n싱글 게임룸 #" + roomId + " 생성!");
         System.out.println("참가자: " + nickname);
 
         room.start();
@@ -91,9 +83,9 @@ public class GameRoomManager {
                 .toArray(String[]::new);
 
         GameRoom room = new GameRoom(nicknames);
-        activeRooms.put(roomId, room);
+        roomRegistry.addMultiRoom(roomId, room);
 
-        System.out.println("\n🎮 멀티 게임룸 #" + roomId + " 생성!");
+        System.out.println("\n멀티 게임룸 #" + roomId + " 생성!");
         System.out.println("참가자: " + String.join(", ", nicknames));
 
         room.start();
@@ -105,7 +97,7 @@ public class GameRoomManager {
         new Thread(() -> {
             try {
                 Thread.sleep(delaySeconds * 1000);
-                activeSingleRooms.remove(roomId);
+                roomRegistry.removeSingleRoom(roomId);
                 System.out.println("싱글 게임룸 #" + roomId + " 정리 완료");
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -117,7 +109,7 @@ public class GameRoomManager {
         new Thread(() -> {
             try {
                 Thread.sleep(delaySeconds * 1000);
-                activeRooms.remove(roomId);
+                roomRegistry.removeMultiRoom(roomId);
                 System.out.println("멀티 게임룸 #" + roomId + " 정리 완료");
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -130,15 +122,15 @@ public class GameRoomManager {
     }
 
     public int getActiveRoomCount() {
-        return activeRooms.size() + activeSingleRooms.size();
+        return roomRegistry.getTotalRoomCount();
     }
 
     public List<GameRoom> getActiveRooms() {
-        return new ArrayList<>(activeRooms.values());
+        return roomRegistry.getMultiRooms();
     }
 
     public List<SingleGameRoom> getActiveSingleRooms() {
-        return new ArrayList<>(activeSingleRooms.values());
+        return roomRegistry.getSingleRooms();
     }
 
     public synchronized void removePlayer(String nickname) {
@@ -150,7 +142,7 @@ public class GameRoomManager {
     public void printStats() {
         System.out.println("\n📊 서버 통계");
         System.out.println("대기 중: " + waitingPlayers.size() + "/4");
-        System.out.println("진행 중인 게임: " + activeRooms.size() + "개");
+        System.out.println("진행 중인 게임: " + roomRegistry.getTotalRoomCount() + "개");
         System.out.println("총 생성된 게임: " + (roomIdCounter.get() - 1) + "개");
     }
 }
