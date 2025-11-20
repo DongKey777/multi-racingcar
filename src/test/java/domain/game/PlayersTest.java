@@ -150,4 +150,38 @@ class PlayersTest {
         playerList.clear();
         assertEquals(2, players.size());
     }
+
+    @Test
+    @DisplayName("특정 닉네임의 플레이어를 제거할 수 있다")
+    void removePlayer() {
+        players.add("동훈");
+        players.add("철수");
+        players.add("영희");
+
+        players.remove("철수");
+
+        assertEquals(2, players.size());
+        assertFalse(players.isFull());
+    }
+
+    @Test
+    @DisplayName("제거된 플레이어는 다시 추가할 수 있다")
+    void addPlayerAfterRemoval() {
+        players.add("동훈");
+        players.remove("동훈");
+
+        players.add("동훈");
+
+        assertEquals(1, players.size());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 플레이어를 제거해도 예외가 발생하지 않는다")
+    void removeNonExistentPlayer() {
+        players.add("동훈");
+
+        players.remove("철수");
+
+        assertEquals(1, players.size());
+    }
 }

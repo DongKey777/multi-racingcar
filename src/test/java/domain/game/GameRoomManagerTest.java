@@ -36,9 +36,9 @@ class GameRoomManagerTest {
     void addPlayer() {
         String nickname = generateNickname("플레이어");  // 플레이어1, 플레이어2, ...
 
-        boolean result = manager.addPlayer(nickname);
+        PlayerJoinResult result = manager.addPlayer(nickname);
 
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
@@ -47,9 +47,9 @@ class GameRoomManagerTest {
         String nickname = generateNickname("중복");  // 중복1, 중복2, ...
         manager.addPlayer(nickname);
 
-        boolean result = manager.addPlayer(nickname);
+        PlayerJoinResult result = manager.addPlayer(nickname);
 
-        assertFalse(result);
+        assertFalse(result.isSuccess());
     }
 
     @Test
@@ -66,5 +66,44 @@ class GameRoomManagerTest {
         int count = manager.getActiveRoomCount();
 
         assertTrue(count >= 0);
+    }
+
+    @Test
+    @DisplayName("대기 중인 플레이어를 제거할 수 있다")
+    void removePlayer() {
+        String nickname = generateNickname("제거대상");
+        manager.addPlayer(nickname);
+        int beforeCount = manager.getWaitingCount();
+
+        manager.removePlayer(nickname);
+        int afterCount = manager.getWaitingCount();
+
+        assertTrue(afterCount < beforeCount);
+    }
+
+    @Test
+    @DisplayName("제거된 플레이어는 다시 입장할 수 있다")
+    void canRejoinAfterRemoval() {
+        String nickname = generateNickname("재입장");
+        manager.addPlayer(nickname);
+        manager.removePlayer(nickname);
+
+        PlayerJoinResult result = manager.addPlayer(nickname);
+
+        assertTrue(result.isSuccess());
+    }
+
+    @Test
+    @DisplayName("게임 종료 후 같은 닉네임으로 재참여할 수 있다")
+    void canRejoinAfterGameEnd() {
+        String nickname = generateNickname("재참여");
+
+        PlayerJoinResult firstJoin = manager.addPlayer(nickname);
+        assertTrue(firstJoin.isSuccess());
+
+        manager.removePlayer(nickname);
+
+        PlayerJoinResult secondJoin = manager.addPlayer(nickname);
+        assertTrue(secondJoin.isSuccess());
     }
 }
