@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
 let ws = null;
 let inputMode = 'nickname';
 let currentNickname = null;
+let selectedMode = null;
 
 function showNicknamePrompt() {
     const content = document.getElementById('content');
@@ -55,12 +56,40 @@ function handleNicknameInput(e) {
 
 function showConnectButton(nickname) {
     const content = document.getElementById('content');
+    content.innerHTML = 'Enter your nickname: ' + nickname + '\n\n';
 
-    content.innerHTML = 'Enter your nickname: ' + nickname + '\n\n<button onclick="connectToServer(\'' + nickname + '\')" id="connect-btn">Press Enter to Connect</button>\n\nracing-game ❯ ';
-    inputMode = 'button';
+    showModeSelection(nickname);
+    inputMode = 'mode';
+}
 
-    const button = document.getElementById('connect-btn');
-    setTimeout(() => button.focus(), 100);
+function showModeSelection(nickname) {
+    const modeSection = document.getElementById('mode-selection');
+    if (modeSection) {
+        modeSection.style.display = 'block';
+    }
+
+    const singleBtn = document.getElementById('single-mode-btn');
+    const multiBtn = document.getElementById('multi-mode-btn');
+
+    singleBtn.onclick = () => selectMode(nickname, 'SINGLE');
+    multiBtn.onclick = () => selectMode(nickname, 'MULTI');
+
+    setTimeout(() => multiBtn.focus(), 100);
+}
+
+function selectMode(nickname, mode) {
+    selectedMode = mode;
+
+    const modeSection = document.getElementById('mode-selection');
+    if (modeSection) {
+        modeSection.style.display = 'none';
+    }
+
+    const content = document.getElementById('content');
+    const modeText = mode === 'SINGLE' ? 'Single Player' : 'Multiplayer';
+    content.innerHTML += 'Selected mode: ' + modeText + '\n\n';
+
+    connectToServer(nickname);
 }
 
 function connectToServer(nickname) {
@@ -86,7 +115,11 @@ function connectToServer(nickname) {
         content.innerHTML += 'Connected to server\n\n';
         content.innerHTML += 'Joining as: ' + nickname + '\n';
 
-        ws.send(nickname);
+        const message = JSON.stringify({
+            nickname: nickname,
+            mode: selectedMode || 'MULTI'
+        });
+        ws.send(message);
         inputMode = 'game';
     };
 
