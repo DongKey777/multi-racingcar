@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     showNicknamePrompt();
+
+    // 화면 전체 클릭 시 입력창에 포커스
+    document.addEventListener('click', function () {
+        if (inputMode === 'nickname') {
+            const input = document.getElementById('nickname-input');
+            if (input) {
+                input.focus();
+            }
+        }
+    });
 });
 
 let ws = null;
