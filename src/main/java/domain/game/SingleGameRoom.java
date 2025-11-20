@@ -49,6 +49,12 @@ public class SingleGameRoom {
     }
 
     private void playOneRound() {
+        if (sessionManager.hasSession(userNickname) && !sessionManager.hasActiveSession(userNickname)) {
+            System.out.println("[경고] 사용자 연결 끊김 - 싱글 게임 중단");
+            endGameEarly();
+            return;
+        }
+
         if (round.isLast()) {
             endGame();
             return;
@@ -61,6 +67,13 @@ public class SingleGameRoom {
 
         players.moveAll();
         printRoundResult();
+    }
+
+    private void endGameEarly() {
+        if (!scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+            System.out.println("싱글 게임 조기 종료 (연결 끊김)");
+        }
     }
 
     private void printRoundResult() {
@@ -90,7 +103,7 @@ public class SingleGameRoom {
         List<Player> winners = players.getWinners();
         String winnerMessage = formatWinnerMessage(winners);
         System.out.println(winnerMessage);
-        sessionManager.sendTo(userNickname, "최종 우승자: " + winnerMessage);
+        sessionManager.sendTo(userNickname, "🏆 최종 우승자: " + winnerMessage);
     }
 
     private String formatWinnerMessage(List<Player> winners) {
