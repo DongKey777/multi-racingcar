@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 let ws = null;
 let inputMode = 'nickname';
+let currentNickname = null;
 
 function showNicknamePrompt() {
     const content = document.getElementById('content');
@@ -68,9 +69,13 @@ function connectToServer(nickname) {
         return;
     }
 
+    currentNickname = nickname;
+
     const content = document.getElementById('content');
     const button = document.getElementById('connect-btn');
     if (button) button.remove();
+
+    hideRestartButton();
 
     content.innerHTML = 'Enter your nickname: ' + nickname + '\n\nConnecting to server...\n';
 
@@ -89,6 +94,10 @@ function connectToServer(nickname) {
         console.log('Message received:', event.data);
         content.innerHTML += event.data + '\n';
         window.scrollTo(0, document.body.scrollHeight);
+
+        if (event.data.includes('게임 종료') || event.data.includes('최종 우승자')) {
+            setTimeout(showRestartButton, 1000);
+        }
     };
 
     ws.onerror = function (error) {
@@ -101,4 +110,41 @@ function connectToServer(nickname) {
         content.innerHTML += 'Connection closed\n';
         ws = null;
     };
+}
+
+function showRestartButton() {
+    const restartSection = document.getElementById('restart-section');
+    if (restartSection) {
+        restartSection.style.display = 'block';
+    }
+
+    const restartBtn = document.getElementById('restart-btn');
+    if (restartBtn && !restartBtn.hasAttribute('data-listener')) {
+        restartBtn.setAttribute('data-listener', 'true');
+        restartBtn.addEventListener('click', handleRestart);
+    }
+}
+
+function hideRestartButton() {
+    const restartSection = document.getElementById('restart-section');
+    if (restartSection) {
+        restartSection.style.display = 'none';
+    }
+}
+
+function handleRestart() {
+    console.log('Restarting game...');
+
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
+
+    hideRestartButton();
+
+    if (currentNickname) {
+        connectToServer(currentNickname);
+    } else {
+        showNicknamePrompt();
+    }
 }
