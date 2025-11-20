@@ -1,6 +1,7 @@
 package infrastructure.websocket;
 
 import domain.game.GameRoomManager;
+import domain.game.PlayerJoinResult;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -25,9 +26,9 @@ public class WebSocketHandler {
             System.out.println("플레이어 입장 시도: " + nickname);
 
             GameRoomManager manager = GameRoomManager.getInstance();
-            boolean added = manager.addPlayer(nickname);
+            PlayerJoinResult result = manager.addPlayer(nickname);
 
-            if (!added) {
+            if (!result.isSuccess()) {
                 WebSocketFrame.writeText(out, "입장 실패 (중복 닉네임)");
                 System.out.println("입장 실패: " + nickname);
                 return;
@@ -37,7 +38,7 @@ public class WebSocketHandler {
             SessionManager.getInstance().add(nickname, session);
 
             String welcomeMessage = "입장 성공! 대기 중... (" +
-                    manager.getWaitingCount() + "/4)";
+                    result.getWaitingCount() + "/4)";
             session.send(welcomeMessage);
             System.out.println("입장 성공: " + nickname);
 

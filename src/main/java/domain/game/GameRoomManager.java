@@ -27,20 +27,24 @@ public class GameRoomManager {
         return instance;
     }
 
-    public synchronized boolean addPlayer(String nickname) {
+    public synchronized PlayerJoinResult addPlayer(String nickname) {
         try {
             waitingPlayers.add(nickname);
+            int waitingCount = waitingPlayers.size();
+            boolean gameStarted = false;
+
             System.out.println("플레이어 입장: " + nickname +
-                    " (대기: " + waitingPlayers.size() + "/4)");
+                    " (대기: " + waitingCount + "/4)");
 
             if (waitingPlayers.isFull()) {
                 createAndStartGame();
+                gameStarted = true;
             }
 
-            return true;
+            return new PlayerJoinResult(true, waitingCount, gameStarted);
         } catch (IllegalArgumentException e) {
             System.out.println("입장 실패: " + e.getMessage());
-            return false;
+            return new PlayerJoinResult(false, 0, false);
         }
     }
 
