@@ -35,24 +35,33 @@ public class GameRoomManager {
             return createAndStartSingleGame(nickname);
         }
 
+        return addToMultiplayerQueue(nickname);
+    }
+
+    private PlayerJoinResult addToMultiplayerQueue(String nickname) {
         try {
             waitingPlayers.add(nickname);
             int waitingCount = waitingPlayers.size();
-            boolean gameStarted = false;
 
             System.out.println("플레이어 입장: " + nickname +
                     " (대기: " + waitingCount + "/4)");
 
-            if (waitingPlayers.isFull()) {
-                createAndStartMultiGame();
-                gameStarted = true;
-            }
+            boolean gameStarted = tryStartMultiGame();
 
             return new PlayerJoinResult(true, waitingCount, gameStarted);
         } catch (IllegalArgumentException e) {
             System.out.println("입장 실패: " + e.getMessage());
             return new PlayerJoinResult(false, 0, false);
         }
+    }
+
+    private boolean tryStartMultiGame() {
+        if (!waitingPlayers.isFull()) {
+            return false;
+        }
+
+        createAndStartMultiGame();
+        return true;
     }
 
     public synchronized PlayerJoinResult addPlayer(String nickname) {
@@ -65,7 +74,7 @@ public class GameRoomManager {
         SingleGameRoom room = new SingleGameRoom(nickname);
         activeSingleRooms.put(roomId, room);
 
-        System.out.println("\n싱글 게임룸 #" + roomId + " 생성!");
+        System.out.println("\n🎮 싱글 게임룸 #" + roomId + " 생성!");
         System.out.println("참가자: " + nickname);
 
         room.start();
@@ -84,7 +93,7 @@ public class GameRoomManager {
         GameRoom room = new GameRoom(nicknames);
         activeRooms.put(roomId, room);
 
-        System.out.println("\n멀티 게임룸 #" + roomId + " 생성!");
+        System.out.println("\n🎮 멀티 게임룸 #" + roomId + " 생성!");
         System.out.println("참가자: " + String.join(", ", nicknames));
 
         room.start();
@@ -139,7 +148,7 @@ public class GameRoomManager {
     }
 
     public void printStats() {
-        System.out.println("\n 서버 통계");
+        System.out.println("\n📊 서버 통계");
         System.out.println("대기 중: " + waitingPlayers.size() + "/4");
         System.out.println("진행 중인 게임: " + activeRooms.size() + "개");
         System.out.println("총 생성된 게임: " + (roomIdCounter.get() - 1) + "개");
