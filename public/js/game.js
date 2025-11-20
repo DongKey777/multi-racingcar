@@ -144,6 +144,7 @@ function connectToServer(nickname) {
         content.innerHTML += event.data + '\n';
         window.scrollTo(0, document.body.scrollHeight);
 
+        // 입장 실패 시 다시 닉네임 입력
         if (event.data.includes('입장 실패')) {
             content.innerHTML += '\nEnter your nickname: <input type="text" id="nickname-input-retry" maxlength="10" autofocus />\n';
 
@@ -220,8 +221,13 @@ function handleRestart() {
 
     hideRestartButton();
 
+    selectedMode = null;
+
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+
     if (currentNickname) {
-        connectToServer(currentNickname);
+        showConnectButton(currentNickname);
     } else {
         showNicknamePrompt();
     }
