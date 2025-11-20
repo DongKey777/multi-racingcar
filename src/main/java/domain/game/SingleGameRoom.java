@@ -22,7 +22,6 @@ public class SingleGameRoom {
     public SingleGameRoom(String nickname) {
         this.userNickname = nickname;
 
-        // 사용자 + AI 플레이어 3명 생성
         String[] allPlayers = new String[TOTAL_PLAYERS];
         allPlayers[0] = nickname;
         System.arraycopy(AI_NAMES, 0, allPlayers, 1, AI_NAMES.length);
@@ -78,26 +77,31 @@ public class SingleGameRoom {
 
     private void endGame() {
         scheduler.shutdown();
+        broadcastGameEnd();
+        announceWinners();
+    }
 
+    private void broadcastGameEnd() {
         System.out.println("\n게임 종료!");
         sessionManager.sendTo(userNickname, "\n게임 종료!");
+    }
 
+    private void announceWinners() {
         List<Player> winners = players.getWinners();
-        StringBuilder winnerMessage = new StringBuilder("🏆 최종 우승자: ");
+        String winnerMessage = formatWinnerMessage(winners);
+        System.out.println(winnerMessage);
+        sessionManager.sendTo(userNickname, "최종 우승자: " + winnerMessage);
+    }
 
+    private String formatWinnerMessage(List<Player> winners) {
+        StringBuilder message = new StringBuilder();
         for (int i = 0; i < winners.size(); i++) {
-            String name = winners.get(i).getNickname();
-            System.out.print(name);
-            winnerMessage.append(name);
-
+            message.append(winners.get(i).getNickname());
             if (i < winners.size() - 1) {
-                System.out.print(", ");
-                winnerMessage.append(", ");
+                message.append(", ");
             }
         }
-        System.out.println();
-
-        sessionManager.sendTo(userNickname, winnerMessage.toString());
+        return message.toString();
     }
 
     public Players getPlayers() {
