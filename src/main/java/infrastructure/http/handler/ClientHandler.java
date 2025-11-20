@@ -63,14 +63,20 @@ public class ClientHandler {
                 break;
             }
 
-            int delimiter = line.indexOf(':');
-            if (delimiter > 0) {
-                String key = line.substring(0, delimiter).trim();
-                String value = line.substring(delimiter + 1).trim();
-                headers.put(key, value);
-            }
+            addHeaderEntry(headers, line);
         }
         return headers;
+    }
+
+    private void addHeaderEntry(Map<String, String> headers, String line) {
+        int delimiter = line.indexOf(':');
+        if (delimiter <= 0) {
+            return;
+        }
+
+        String key = line.substring(0, delimiter).trim();
+        String value = line.substring(delimiter + 1).trim();
+        headers.put(key, value);
     }
 
     private boolean isWebSocketRequest(Map<String, String> headers) {
