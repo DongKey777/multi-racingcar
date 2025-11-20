@@ -21,6 +21,7 @@ class SingleGameRoomTest {
         assertNotNull(room);
         assertEquals(0, room.getCurrentRound());
         assertFalse(room.isGameStarted());
+        assertEquals(4, room.getPlayers().size()); // 사용자 1명 + AI 3명
     }
 
     @Test
@@ -74,13 +75,28 @@ class SingleGameRoomTest {
 
     @Test
     @DisplayName("플레이어 정보를 조회할 수 있다")
-    void getPlayer() {
+    void getPlayers() {
         String nickname = "동훈";
         SingleGameRoom room = new SingleGameRoom(nickname);
 
-        Player player = room.getPlayer();
+        Players players = room.getPlayers();
 
-        assertNotNull(player);
-        assertEquals(nickname, player.getNickname());
+        assertNotNull(players);
+        assertEquals(4, players.size());
+        assertEquals(nickname, room.getUserNickname());
+    }
+
+    @Test
+    @DisplayName("사용자와 AI 플레이어가 모두 포함된다")
+    void includesUserAndAI() {
+        String nickname = "동훈";
+        SingleGameRoom room = new SingleGameRoom(nickname);
+
+        Players players = room.getPlayers();
+        boolean hasUser = players.getPlayers().stream()
+                .anyMatch(p -> p.getNickname().equals(nickname));
+
+        assertTrue(hasUser);
+        assertEquals(4, players.size());
     }
 }
