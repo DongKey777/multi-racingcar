@@ -33,7 +33,7 @@ public class GameRoomManager {
             int waitingCount = waitingPlayers.size();
 
             System.out.println("플레이어 입장: " + nickname +
-                    " (대기: " + waitingCount + "/4)");
+                    " (대기: " + waitingCount + "/" + Players.MAX_PLAYERS + ")");
 
             boolean gameStarted = tryStartMultiGame();
 
@@ -121,12 +121,12 @@ public class GameRoomManager {
     public synchronized void removePlayer(String nickname) {
         waitingPlayers.remove(nickname);
         System.out.println("플레이어 제거: " + nickname +
-                " (대기: " + waitingPlayers.size() + "/4)");
+                " (대기: " + waitingPlayers.size() + "/" + Players.MAX_PLAYERS + ")");
     }
 
     public void printStats() {
         System.out.println("\n서버 통계");
-        System.out.println("대기 중: " + waitingPlayers.size() + "/4");
+        System.out.println("대기 중: " + waitingPlayers.size() + "/" + Players.MAX_PLAYERS);
         System.out.println("진행 중인 게임: " + roomRegistry.getTotalRoomCount() + "개");
         System.out.println("총 생성된 게임: " + (roomIdCounter.get() - 1) + "개");
     }

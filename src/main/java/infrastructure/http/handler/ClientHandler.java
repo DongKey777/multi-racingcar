@@ -73,13 +73,13 @@ public class ClientHandler {
     }
 
     private void addHeaderEntry(Map<String, String> headers, String line) {
-        int delimiter = line.indexOf(':');
-        if (delimiter <= 0) {
+        int colonIndex = line.indexOf(':');
+        if (colonIndex <= 0) {
             return;
         }
 
-        String key = line.substring(0, delimiter).trim();
-        String value = line.substring(delimiter + 1).trim();
+        String key = line.substring(0, colonIndex).trim();
+        String value = line.substring(colonIndex + 1).trim();
         headers.put(key, value);
     }
 

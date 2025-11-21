@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Players {
-    private static final int MAX_PLAYERS = 4;
+    public static final int MAX_PLAYERS = 4;
     private final List<Player> players = new ArrayList<>();
     private final MovingStrategy movingStrategy;
 

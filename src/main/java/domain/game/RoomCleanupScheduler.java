@@ -2,11 +2,12 @@ package domain.game;
 
 public class RoomCleanupScheduler {
     private static final int CLEANUP_DELAY_SECONDS = 10;
+    private static final int SECONDS_TO_MILLIS = 1000;
 
     public void scheduleCleanup(Runnable cleanupTask) {
         Thread thread = new Thread(() -> {
             try {
-                Thread.sleep(CLEANUP_DELAY_SECONDS * 1000);
+                Thread.sleep(CLEANUP_DELAY_SECONDS * SECONDS_TO_MILLIS);
                 cleanupTask.run();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
