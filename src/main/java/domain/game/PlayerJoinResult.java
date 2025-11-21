@@ -11,6 +11,14 @@ public class PlayerJoinResult {
         this.gameStarted = gameStarted;
     }
 
+    public static PlayerJoinResult success(int waitingCount, boolean gameStarted) {
+        return new PlayerJoinResult(true, waitingCount, gameStarted);
+    }
+
+    public static PlayerJoinResult failure() {
+        return new PlayerJoinResult(false, 0, false);
+    }
+
     public boolean isSuccess() {
         return success;
     }

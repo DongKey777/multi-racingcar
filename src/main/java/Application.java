@@ -1,5 +1,4 @@
 import domain.event.GameEventPublisher;
-import domain.game.GameRoomManager;
 import infrastructure.http.router.Router;
 import infrastructure.http.server.HttpServer;
 import infrastructure.websocket.SessionManager;
@@ -11,9 +10,8 @@ public class Application {
     public static void main(String[] args) {
         SessionManager sessionManager = new SessionManager();
         GameEventPublisher eventPublisher = new WebSocketGameEventPublisher(sessionManager);
-        GameRoomManager gameRoomManager = new GameRoomManager(eventPublisher);
 
-        GameService gameService = new GameService(gameRoomManager, sessionManager, eventPublisher);
+        GameService gameService = new GameService(sessionManager, eventPublisher);
 
         Router router = new Router();
         HttpServer server = new HttpServer(router, gameService);

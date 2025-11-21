@@ -1,32 +1,33 @@
 package domain.game;
 
+import domain.vo.RoomId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RoomRegistry {
-    private final Map<Integer, GameRoom> multiRooms;
-    private final Map<Integer, SingleGameRoom> singleRooms;
+public class GameRoomRepository {
+    private final Map<RoomId, GameRoom> multiRooms;
+    private final Map<RoomId, SingleGameRoom> singleRooms;
 
-    public RoomRegistry() {
+    public GameRoomRepository() {
         this.multiRooms = new ConcurrentHashMap<>();
         this.singleRooms = new ConcurrentHashMap<>();
     }
 
-    public void addMultiRoom(int roomId, GameRoom room) {
+    public void saveMultiRoom(RoomId roomId, GameRoom room) {
         multiRooms.put(roomId, room);
     }
 
-    public void addSingleRoom(int roomId, SingleGameRoom room) {
+    public void saveSingleRoom(RoomId roomId, SingleGameRoom room) {
         singleRooms.put(roomId, room);
     }
 
-    public void removeMultiRoom(int roomId) {
+    public void removeMultiRoom(RoomId roomId) {
         multiRooms.remove(roomId);
     }
 
-    public void removeSingleRoom(int roomId) {
+    public void removeSingleRoom(RoomId roomId) {
         singleRooms.remove(roomId);
     }
 
