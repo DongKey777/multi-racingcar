@@ -1,7 +1,7 @@
 package domain.game;
 
+import domain.event.GameEventPublisher;
 import domain.vo.Round;
-import infrastructure.websocket.SessionManager;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,20 +15,21 @@ public class SingleGameRoom {
     private final Players players;
     private final String userNickname;
     private final ScheduledExecutorService scheduler;
-    private final SessionManager sessionManager;
+    private final GameEventPublisher eventPublisher;
     private Round round;
     private boolean gameStarted;
 
-    public SingleGameRoom(String nickname) {
+    public SingleGameRoom(String nickname, GameEventPublisher eventPublisher) {
         this.userNickname = nickname;
 
+        // 사용자 + AI 플레이어 3명 생성
         String[] allPlayers = new String[TOTAL_PLAYERS];
         allPlayers[0] = nickname;
         System.arraycopy(AI_NAMES, 0, allPlayers, 1, AI_NAMES.length);
 
         this.players = new Players(allPlayers);
         this.scheduler = Executors.newScheduledThreadPool(1);
-        this.sessionManager = SessionManager.getInstance();
+        this.eventPublisher = eventPublisher;
         this.round = new Round(0, MAX_ROUNDS);
         this.gameStarted = false;
     }
@@ -41,7 +42,7 @@ public class SingleGameRoom {
         gameStarted = true;
         System.out.println("\n싱글 플레이 게임 시작!");
 
-        sessionManager.sendTo(userNickname, "\n게임 시작! (싱글 플레이 - AI 3명과 경쟁)\n");
+        eventPublisher.publish(userNickname, "\n게임 시작! (싱글 플레이 - AI 3명과 경쟁)\n");
 
         scheduler.scheduleAtFixedRate(() -> {
             playOneRound();
@@ -49,7 +50,7 @@ public class SingleGameRoom {
     }
 
     private void playOneRound() {
-        if (sessionManager.hasSession(userNickname) && !sessionManager.hasActiveSession(userNickname)) {
+        if (eventPublisher.hasSession(userNickname) && !eventPublisher.hasActiveSession(userNickname)) {
             System.out.println("[경고] 사용자 연결 끊김 - 싱글 게임 중단");
             endGameEarly();
             return;
@@ -63,7 +64,7 @@ public class SingleGameRoom {
         round = round.next();
         System.out.println("\n=== Round " + round.getCurrent() + " ===");
 
-        sessionManager.sendTo(userNickname, "\n=== Round " + round.getCurrent() + " ===");
+        eventPublisher.publish(userNickname, "\n=== Round " + round.getCurrent() + " ===");
 
         players.moveAll();
         printRoundResult();
@@ -85,7 +86,7 @@ public class SingleGameRoom {
             result.append(line).append("\n");
         }
 
-        sessionManager.sendTo(userNickname, result.toString());
+        eventPublisher.publish(userNickname, result.toString());
     }
 
     private void endGame() {
@@ -96,14 +97,14 @@ public class SingleGameRoom {
 
     private void broadcastGameEnd() {
         System.out.println("\n게임 종료!");
-        sessionManager.sendTo(userNickname, "\n게임 종료!");
+        eventPublisher.publish(userNickname, "\n게임 종료!");
     }
 
     private void announceWinners() {
         List<Player> winners = players.getWinners();
         String winnerMessage = formatWinnerMessage(winners);
         System.out.println(winnerMessage);
-        sessionManager.sendTo(userNickname, "🏆 최종 우승자: " + winnerMessage);
+        eventPublisher.publish(userNickname, "최종 우승자: " + winnerMessage);
     }
 
     private String formatWinnerMessage(List<Player> winners) {

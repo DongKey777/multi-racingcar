@@ -1,7 +1,7 @@
 package domain.game;
 
+import domain.event.GameEventPublisher;
 import domain.vo.Round;
-import infrastructure.websocket.SessionManager;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -12,14 +12,14 @@ public class GameRoom {
 
     private final Players players;
     private final ScheduledExecutorService scheduler;
-    private final SessionManager sessionManager;
+    private final GameEventPublisher eventPublisher;
     private Round round;
     private boolean gameStarted;
 
-    public GameRoom(String[] nicknames) {
+    public GameRoom(String[] nicknames, GameEventPublisher eventPublisher) {
         this.players = new Players(nicknames);
         this.scheduler = Executors.newScheduledThreadPool(1);
-        this.sessionManager = SessionManager.getInstance();
+        this.eventPublisher = eventPublisher;
         this.round = new Round(0, MAX_ROUNDS);
         this.gameStarted = false;
     }
@@ -101,13 +101,13 @@ public class GameRoom {
 
         for (Player player : players.getPlayers()) {
             String nickname = player.getNickname();
-            if (!sessionManager.hasSession(nickname)) {
+            if (!eventPublisher.hasSession(nickname)) {
                 continue;
             }
 
             anySessionExists = true;
-            if (sessionManager.hasActiveSession(nickname)) {
-                sessionManager.sendTo(nickname, message);
+            if (eventPublisher.hasActiveSession(nickname)) {
+                eventPublisher.publish(nickname, message);
                 connectedCount++;
             }
         }

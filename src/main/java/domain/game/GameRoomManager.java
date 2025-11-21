@@ -1,5 +1,8 @@
 package domain.game;
 
+import domain.event.GameEventPublisher;
+import infrastructure.websocket.SessionManager;
+import infrastructure.websocket.WebSocketGameEventPublisher;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -7,11 +10,13 @@ public class GameRoomManager {
     private static GameRoomManager instance;
     private final RoomRegistry roomRegistry;
     private final AtomicInteger roomIdCounter;
+    private final GameEventPublisher eventPublisher;
     private Players waitingPlayers;
 
     private GameRoomManager() {
         this.roomRegistry = new RoomRegistry();
         this.roomIdCounter = new AtomicInteger(1);
+        this.eventPublisher = new WebSocketGameEventPublisher(SessionManager.getInstance());
         this.waitingPlayers = new Players();
     }
 
@@ -63,7 +68,7 @@ public class GameRoomManager {
     private PlayerJoinResult createAndStartSingleGame(String nickname) {
         int roomId = roomIdCounter.getAndIncrement();
 
-        SingleGameRoom room = new SingleGameRoom(nickname);
+        SingleGameRoom room = new SingleGameRoom(nickname, eventPublisher);
         roomRegistry.addSingleRoom(roomId, room);
 
         System.out.println("\n싱글 게임룸 #" + roomId + " 생성!");
@@ -82,7 +87,7 @@ public class GameRoomManager {
                 .map(Player::getNickname)
                 .toArray(String[]::new);
 
-        GameRoom room = new GameRoom(nicknames);
+        GameRoom room = new GameRoom(nicknames, eventPublisher);
         roomRegistry.addMultiRoom(roomId, room);
 
         System.out.println("\n멀티 게임룸 #" + roomId + " 생성!");
@@ -140,7 +145,7 @@ public class GameRoomManager {
     }
 
     public void printStats() {
-        System.out.println("\n📊 서버 통계");
+        System.out.println("\n서버 통계");
         System.out.println("대기 중: " + waitingPlayers.size() + "/4");
         System.out.println("진행 중인 게임: " + roomRegistry.getTotalRoomCount() + "개");
         System.out.println("총 생성된 게임: " + (roomIdCounter.get() - 1) + "개");
