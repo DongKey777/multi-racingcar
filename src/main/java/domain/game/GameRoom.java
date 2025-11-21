@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 public class GameRoom {
     private static final int MAX_ROUNDS = 5;
+    private static final int ROUND_INITIAL_DELAY_SECONDS = 1;
+    private static final int ROUND_INTERVAL_SECONDS = 1;
 
     private final Players players;
     private final ScheduledExecutorService scheduler;
@@ -36,7 +38,7 @@ public class GameRoom {
 
         scheduler.scheduleAtFixedRate(() -> {
             playOneRound();
-        }, 1, 1, TimeUnit.SECONDS);
+        }, ROUND_INITIAL_DELAY_SECONDS, ROUND_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
     private void playOneRound() {

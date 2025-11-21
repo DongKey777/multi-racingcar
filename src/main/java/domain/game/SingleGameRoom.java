@@ -11,6 +11,8 @@ public class SingleGameRoom {
     private static final int MAX_ROUNDS = 5;
     private static final int TOTAL_PLAYERS = 4;
     private static final String[] AI_NAMES = {"AI_1", "AI_2", "AI_3"};
+    private static final int ROUND_INITIAL_DELAY_SECONDS = 1;
+    private static final int ROUND_INTERVAL_SECONDS = 1;
 
     private final Players players;
     private final String userNickname;
@@ -22,7 +24,6 @@ public class SingleGameRoom {
     public SingleGameRoom(String nickname, GameEventPublisher eventPublisher) {
         this.userNickname = nickname;
 
-        // 사용자 + AI 플레이어 3명 생성
         String[] allPlayers = new String[TOTAL_PLAYERS];
         allPlayers[0] = nickname;
         System.arraycopy(AI_NAMES, 0, allPlayers, 1, AI_NAMES.length);
@@ -46,7 +47,7 @@ public class SingleGameRoom {
 
         scheduler.scheduleAtFixedRate(() -> {
             playOneRound();
-        }, 1, 1, TimeUnit.SECONDS);
+        }, ROUND_INITIAL_DELAY_SECONDS, ROUND_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
     private void playOneRound() {

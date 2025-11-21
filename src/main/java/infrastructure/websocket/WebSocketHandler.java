@@ -66,13 +66,13 @@ public class WebSocketHandler {
 
     private void processGameMessages(InputStream in, WebSocketSession session, String nickname) throws Exception {
         while (true) {
-            String msg = WebSocketFrame.readText(in);
+            String gameMessage = WebSocketFrame.readText(in);
 
-            if (isConnectionClosed(msg, nickname)) {
+            if (isConnectionClosed(gameMessage, nickname)) {
                 break;
             }
 
-            if (!sendMessageToClient(session, msg, nickname)) {
+            if (!sendMessageToClient(session, gameMessage, nickname)) {
                 break;
             }
         }
