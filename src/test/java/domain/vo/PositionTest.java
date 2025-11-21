@@ -42,7 +42,7 @@ class PositionTest {
         Position moved = position.moveForward();
 
         assertEquals(4, moved.getValue());
-        assertEquals(3, position.getValue()); // 불변성 확인
+        assertEquals(3, position.getValue());
     }
 
     @Test

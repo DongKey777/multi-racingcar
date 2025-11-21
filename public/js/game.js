@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     showNicknamePrompt();
 
-    // 화면 전체 클릭 시 입력창에 포커스
     document.addEventListener('click', function () {
         if (inputMode === 'nickname') {
             const input = document.getElementById('nickname-input');
@@ -27,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // 재시도 입력창도 포커스
         const retryInput = document.getElementById('nickname-input-retry');
         if (retryInput) {
             retryInput.focus();
@@ -144,7 +142,6 @@ function connectToServer(nickname) {
         content.innerHTML += event.data + '\n';
         window.scrollTo(0, document.body.scrollHeight);
 
-        // 입장 실패 시 다시 닉네임 입력
         if (event.data.includes('입장 실패')) {
             content.innerHTML += '\nEnter your nickname: <input type="text" id="nickname-input-retry" maxlength="10" autofocus />\n';
 

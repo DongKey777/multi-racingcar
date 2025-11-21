@@ -29,7 +29,6 @@ class FixedMovingStrategyTest {
         assertTrue(strategy.shouldMove());
         assertFalse(strategy.shouldMove());
 
-        // 패턴 반복
         assertTrue(strategy.shouldMove());
         assertFalse(strategy.shouldMove());
     }
@@ -42,6 +41,6 @@ class FixedMovingStrategyTest {
 
         pattern[0] = false;
 
-        assertTrue(strategy.shouldMove());  // 여전히 true
+        assertTrue(strategy.shouldMove());
     }
 }

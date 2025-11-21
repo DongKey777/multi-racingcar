@@ -23,7 +23,6 @@ public class SingleGameRoom {
     public SingleGameRoom(String nickname, GameEventPublisher eventPublisher) {
         this.userNickname = nickname;
 
-        // 사용자 + AI 플레이어 3명 생성
         String[] allPlayers = new String[Players.MAX_PLAYERS];
         allPlayers[0] = nickname;
         System.arraycopy(AI_NAMES, 0, allPlayers, 1, AI_NAMES.length);

@@ -65,7 +65,7 @@ class RoundTest {
 
         assertEquals(4, next.getCurrent());
         assertEquals(5, next.getMax());
-        assertEquals(3, round.getCurrent()); // 불변성 확인
+        assertEquals(3, round.getCurrent());
     }
 
     @Test
