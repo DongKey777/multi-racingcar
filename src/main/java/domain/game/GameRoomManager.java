@@ -8,12 +8,14 @@ public class GameRoomManager {
     private final RoomRegistry roomRegistry;
     private final AtomicInteger roomIdCounter;
     private final GameEventPublisher eventPublisher;
+    private final RoomCleanupScheduler cleanupScheduler;
     private Players waitingPlayers;
 
     public GameRoomManager(GameEventPublisher eventPublisher) {
         this.roomRegistry = new RoomRegistry();
         this.roomIdCounter = new AtomicInteger(1);
         this.eventPublisher = eventPublisher;
+        this.cleanupScheduler = new RoomCleanupScheduler();
         this.waitingPlayers = new Players();
     }
 
@@ -65,7 +67,7 @@ public class GameRoomManager {
         System.out.println("참가자: " + nickname);
 
         room.start();
-        scheduleSingleRoomCleanup(roomId, 10);
+        scheduleRoomCleanup(roomId, true);
 
         return new PlayerJoinResult(true, 1, true);
     }
@@ -85,31 +87,19 @@ public class GameRoomManager {
 
         room.start();
         waitingPlayers = new Players();
-        scheduleMultiRoomCleanup(roomId, 10);
+        scheduleRoomCleanup(roomId, false);
     }
 
-    private void scheduleSingleRoomCleanup(int roomId, int delaySeconds) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(delaySeconds * 1000);
+    private void scheduleRoomCleanup(int roomId, boolean isSingleRoom) {
+        cleanupScheduler.scheduleCleanup(() -> {
+            if (isSingleRoom) {
                 roomRegistry.removeSingleRoom(roomId);
                 System.out.println("싱글 게임룸 #" + roomId + " 정리 완료");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    private void scheduleMultiRoomCleanup(int roomId, int delaySeconds) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(delaySeconds * 1000);
+            } else {
                 roomRegistry.removeMultiRoom(roomId);
                 System.out.println("멀티 게임룸 #" + roomId + " 정리 완료");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     public int getWaitingCount() {

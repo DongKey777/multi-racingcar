@@ -11,10 +11,12 @@ public class HttpServer {
     private static final int PORT = 8080;
     private final Router router;
     private final GameService gameService;
+    private final ClientThreadManager threadManager;
 
     public HttpServer(Router router, GameService gameService) {
         this.router = router;
         this.gameService = gameService;
+        this.threadManager = new ClientThreadManager();
     }
 
     public void start() throws IOException {
@@ -26,8 +28,7 @@ public class HttpServer {
             System.out.println("연결 완료");
 
             ClientHandler handler = new ClientHandler(client, router, gameService);
-            Thread thread = new Thread(handler::handle);
-            thread.start();
+            threadManager.execute(handler::handle);
         }
     }
 }
