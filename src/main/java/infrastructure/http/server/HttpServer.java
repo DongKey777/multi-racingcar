@@ -1,23 +1,20 @@
 package infrastructure.http.server;
 
-import domain.game.GameRoomManager;
 import infrastructure.http.handler.ClientHandler;
 import infrastructure.http.router.Router;
-import infrastructure.websocket.SessionManager;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import service.GameService;
 
 public class HttpServer {
     private static final int PORT = 8080;
     private final Router router;
-    private final SessionManager sessionManager;
-    private final GameRoomManager gameRoomManager;
+    private final GameService gameService;
 
-    public HttpServer(Router router, SessionManager sessionManager, GameRoomManager gameRoomManager) {
+    public HttpServer(Router router, GameService gameService) {
         this.router = router;
-        this.sessionManager = sessionManager;
-        this.gameRoomManager = gameRoomManager;
+        this.gameService = gameService;
     }
 
     public void start() throws IOException {
@@ -28,7 +25,7 @@ public class HttpServer {
             Socket client = server.accept();
             System.out.println("연결 완료");
 
-            ClientHandler handler = new ClientHandler(client, router, sessionManager, gameRoomManager);
+            ClientHandler handler = new ClientHandler(client, router, gameService);
             Thread thread = new Thread(handler::handle);
             thread.start();
         }

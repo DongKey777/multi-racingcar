@@ -1,10 +1,9 @@
 package infrastructure.http.handler;
 
-import domain.game.GameRoomManager;
+import controller.GameController;
 import infrastructure.http.request.HttpRequest;
 import infrastructure.http.response.HttpResponse;
 import infrastructure.http.router.Router;
-import infrastructure.websocket.SessionManager;
 import infrastructure.websocket.WebSocketHandler;
 import infrastructure.websocket.WebSocketHandshake;
 import java.io.BufferedReader;
@@ -14,18 +13,17 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import service.GameService;
 
 public class ClientHandler {
     private final Socket client;
     private final Router router;
-    private final SessionManager sessionManager;
-    private final GameRoomManager gameRoomManager;
+    private final GameService gameService;
 
-    public ClientHandler(Socket client, Router router, SessionManager sessionManager, GameRoomManager gameRoomManager) {
+    public ClientHandler(Socket client, Router router, GameService gameService) {
         this.client = client;
         this.router = router;
-        this.sessionManager = sessionManager;
-        this.gameRoomManager = gameRoomManager;
+        this.gameService = gameService;
     }
 
     public void handle() {
@@ -106,7 +104,8 @@ public class ClientHandler {
 
         System.out.println("Handshake 완료");
 
-        WebSocketHandler handler = new WebSocketHandler(client, sessionManager, gameRoomManager);
+        GameController controller = new GameController(gameService);
+        WebSocketHandler handler = new WebSocketHandler(client, controller);
         handler.handle();
     }
 

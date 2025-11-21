@@ -1,7 +1,7 @@
 package infrastructure.websocket;
 
+import controller.GameController;
 import domain.game.GameMode;
-import domain.game.GameRoomManager;
 import domain.game.PlayerJoinResult;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,13 +9,11 @@ import java.net.Socket;
 
 public class WebSocketHandler {
     private final Socket socket;
-    private final SessionManager sessionManager;
-    private final GameRoomManager gameRoomManager;
+    private final GameController gameController;
 
-    public WebSocketHandler(Socket socket, SessionManager sessionManager, GameRoomManager gameRoomManager) {
+    public WebSocketHandler(Socket socket, GameController gameController) {
         this.socket = socket;
-        this.sessionManager = sessionManager;
-        this.gameRoomManager = gameRoomManager;
+        this.gameController = gameController;
     }
 
     public void handle() {
@@ -35,7 +33,7 @@ public class WebSocketHandler {
         } catch (Exception e) {
             System.out.println("연결 종료 [" + nickname + "]: " + e.getMessage());
         } finally {
-            cleanupPlayer(nickname);
+            gameController.handlePlayerLeave(nickname);
         }
     }
 
@@ -50,32 +48,15 @@ public class WebSocketHandler {
 
             System.out.println("플레이어 입장 시도: " + attemptNickname + " (모드: " + mode + ")");
 
-            PlayerJoinResult result = gameRoomManager.addPlayer(attemptNickname, mode);
+            PlayerJoinResult result = gameController.attemptJoinGame(attemptNickname, mode, socket);
 
             if (result.isSuccess()) {
-                return registerPlayer(attemptNickname, mode, result);
+                WebSocketSession session = new WebSocketSession(socket, attemptNickname);
+                return new PlayerJoinContext(attemptNickname, session);
             }
 
             sendJoinFailureMessage(out, attemptNickname);
         }
-    }
-
-    private PlayerJoinContext registerPlayer(String nickname, GameMode mode, PlayerJoinResult result) throws Exception {
-        WebSocketSession session = new WebSocketSession(socket, nickname);
-        sessionManager.add(nickname, session);
-
-        String welcomeMessage = createWelcomeMessage(mode, result);
-        session.send(welcomeMessage);
-        System.out.println("입장 성공: " + nickname);
-
-        return new PlayerJoinContext(nickname, session);
-    }
-
-    private String createWelcomeMessage(GameMode mode, PlayerJoinResult result) {
-        if (mode == GameMode.SINGLE) {
-            return "입장 성공! 싱글 플레이 시작...";
-        }
-        return "입장 성공! 대기 중... (" + result.getWaitingCount() + "/4)";
     }
 
     private void sendJoinFailureMessage(OutputStream out, String attemptNickname) throws Exception {
@@ -117,13 +98,6 @@ public class WebSocketHandler {
             System.out.println("메시지 전송 실패로 연결 종료 [" + nickname + "]");
         }
         return success;
-    }
-
-    private void cleanupPlayer(String nickname) {
-        if (nickname != null) {
-            sessionManager.remove(nickname);
-            gameRoomManager.removePlayer(nickname);
-        }
     }
 
     private PlayerInfo parsePlayerInfo(String message) {
