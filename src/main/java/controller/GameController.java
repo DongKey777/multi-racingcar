@@ -16,7 +16,6 @@ public class GameController {
         PlayerJoinResult result = gameService.joinGame(nickname, mode, socket);
 
         if (result.isSuccess()) {
-            gameService.sendWelcomeMessage(nickname, mode, result);
             System.out.println("입장 성공: " + nickname);
         }
 

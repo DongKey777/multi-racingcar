@@ -48,20 +48,29 @@ public class WebSocketHandler {
 
             System.out.println("플레이어 입장 시도: " + attemptNickname + " (모드: " + mode + ")");
 
-            PlayerJoinResult result = gameController.attemptJoinGame(attemptNickname, mode, socket);
+            try {
+                PlayerJoinResult result = gameController.attemptJoinGame(attemptNickname, mode, socket);
 
-            if (result.isSuccess()) {
-                WebSocketSession session = new WebSocketSession(socket, attemptNickname);
-                return new PlayerJoinContext(attemptNickname, session);
+                if (result.isSuccess()) {
+                    WebSocketSession session = new WebSocketSession(socket, attemptNickname);
+                    return new PlayerJoinContext(attemptNickname, session);
+                }
+
+                sendJoinFailureMessage(out, attemptNickname);
+            } catch (IllegalArgumentException e) {
+                sendValidationFailureMessage(out, e.getMessage());
             }
-
-            sendJoinFailureMessage(out, attemptNickname);
         }
     }
 
     private void sendJoinFailureMessage(OutputStream out, String attemptNickname) throws Exception {
         WebSocketFrame.writeText(out, "입장 실패 (중복 닉네임). 다른 닉네임을 입력해주세요.");
         System.out.println("입장 실패: " + attemptNickname);
+    }
+
+    private void sendValidationFailureMessage(OutputStream out, String errorMessage) throws Exception {
+        WebSocketFrame.writeText(out, "입장 실패: " + errorMessage + " 다시 입력해주세요.");
+        System.out.println("검증 실패: " + errorMessage);
     }
 
     private void processGameMessages(InputStream in, WebSocketSession session, String nickname) throws Exception {

@@ -3,7 +3,6 @@ package service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.contains;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -70,13 +69,5 @@ class GameServiceTest {
         assertEquals(0, count);
     }
 
-    @Test
-    @DisplayName("환영 메시지를 전송할 수 있다")
-    void sendWelcomeMessage() {
-        PlayerJoinResult result = PlayerJoinResult.success(2, false);
-
-        gameService.sendWelcomeMessage("김철수", GameMode.MULTI, result);
-
-        verify(sessionManager).sendTo(eq("김철수"), contains("대기 중"));
-    }
 }
+

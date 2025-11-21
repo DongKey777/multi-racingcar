@@ -55,6 +55,9 @@ public class GameService {
             System.out.println("\n싱글 게임룸 #" + roomId + " 생성!");
             System.out.println("참가자: " + nickname);
 
+            String welcomeMessage = "입장 성공! 싱글 플레이 시작...";
+            sessionManager.sendTo(nickname, welcomeMessage);
+
             room.start();
             scheduleRoomCleanup(roomId, true);
 
@@ -142,18 +145,6 @@ public class GameService {
 
     public int getActiveRoomCount() {
         return roomRepository.getTotalRoomCount();
-    }
-
-    public void sendWelcomeMessage(String nickname, GameMode mode, PlayerJoinResult result) {
-        String message = createWelcomeMessage(mode, result);
-        sessionManager.sendTo(nickname, message);
-    }
-
-    private String createWelcomeMessage(GameMode mode, PlayerJoinResult result) {
-        if (mode == GameMode.SINGLE) {
-            return "입장 성공! 싱글 플레이 시작...";
-        }
-        return "입장 성공! 대기 중... (" + result.getWaitingCount() + "/" + Players.MAX_PLAYERS + ")";
     }
 
     public void printStats() {

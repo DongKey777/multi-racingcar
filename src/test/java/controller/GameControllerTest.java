@@ -41,7 +41,6 @@ class GameControllerTest {
 
         assertTrue(result.isSuccess());
         verify(gameService).joinGame("player1", GameMode.MULTI, socket);
-        verify(gameService).sendWelcomeMessage("player1", GameMode.MULTI, expectedResult);
     }
 
     @Test
