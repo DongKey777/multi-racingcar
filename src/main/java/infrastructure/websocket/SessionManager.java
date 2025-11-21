@@ -11,6 +11,9 @@ public class SessionManager {
     }
 
     public void add(String nickname, WebSocketSession session) {
+        if (sessions.containsKey(nickname)) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다: " + nickname);
+        }
         sessions.put(nickname, session);
         System.out.println("세션 등록: " + nickname + " (총 " + sessions.size() + "명)");
     }
