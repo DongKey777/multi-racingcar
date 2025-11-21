@@ -6,33 +6,36 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class WebSocketFrame {
+    private static final byte TEXT_FRAME_OPCODE = (byte) 0x81;
+    private static final int PAYLOAD_LENGTH_MASK = 0x7F;
+    private static final int MASKING_KEY_LENGTH = 4;
 
     public static String readText(InputStream in) throws IOException {
-        int b1 = in.read();
-        int b2 = in.read();
+        int firstByte = in.read();
+        int secondByte = in.read();
 
-        int len = b2 & 0x7F;
+        int payloadLength = secondByte & PAYLOAD_LENGTH_MASK;
 
-        byte[] key = new byte[4];
-        in.read(key);
+        byte[] maskingKey = new byte[MASKING_KEY_LENGTH];
+        in.read(maskingKey);
 
-        byte[] data = new byte[len];
-        in.read(data);
+        byte[] payload = new byte[payloadLength];
+        in.read(payload);
 
-        for (int i = 0; i < len; i++) {
-            data[i] ^= key[i % 4];
+        for (int i = 0; i < payloadLength; i++) {
+            payload[i] ^= maskingKey[i % MASKING_KEY_LENGTH];
         }
 
-        return new String(data, StandardCharsets.UTF_8);
+        return new String(payload, StandardCharsets.UTF_8);
     }
 
     public static void writeText(OutputStream out, String message) throws IOException {
-        byte[] data = message.getBytes(StandardCharsets.UTF_8);
-        int len = data.length;
+        byte[] payload = message.getBytes(StandardCharsets.UTF_8);
+        int payloadLength = payload.length;
 
-        out.write(0x81);
-        out.write(len);
-        out.write(data);
+        out.write(TEXT_FRAME_OPCODE);
+        out.write(payloadLength);
+        out.write(payload);
         out.flush();
     }
 }
