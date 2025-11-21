@@ -2,9 +2,9 @@ package infrastructure.websocket;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,15 +20,7 @@ class SessionManagerTest {
 
     @BeforeEach
     void setUp() {
-        manager = SessionManager.getInstance();
-    }
-
-    @Test
-    @DisplayName("싱글톤 인스턴스를 반환한다")
-    void singleton() {
-        SessionManager another = SessionManager.getInstance();
-
-        assertSame(manager, another);
+        manager = new SessionManager();
     }
 
     @Test

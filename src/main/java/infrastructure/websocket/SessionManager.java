@@ -4,18 +4,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionManager {
-    private static SessionManager instance;
     private final Map<String, WebSocketSession> sessions;
 
-    private SessionManager() {
+    public SessionManager() {
         this.sessions = new ConcurrentHashMap<>();
-    }
-
-    public static synchronized SessionManager getInstance() {
-        if (instance == null) {
-            instance = new SessionManager();
-        }
-        return instance;
     }
 
     public void add(String nickname, WebSocketSession session) {
@@ -32,7 +24,7 @@ public class SessionManager {
     }
 
     public void broadcast(String message) {
-        System.out.println("브로드캐스트 → " + sessions.size() + "명: " + message.trim());
+        System.out.println("브로드캐스트 -> " + sessions.size() + "명: " + message.trim());
         sessions.values().forEach(session -> {
             if (session.isConnected()) {
                 session.send(message);

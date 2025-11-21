@@ -1,30 +1,20 @@
 package domain.game;
 
 import domain.event.GameEventPublisher;
-import infrastructure.websocket.SessionManager;
-import infrastructure.websocket.WebSocketGameEventPublisher;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameRoomManager {
-    private static GameRoomManager instance;
     private final RoomRegistry roomRegistry;
     private final AtomicInteger roomIdCounter;
     private final GameEventPublisher eventPublisher;
     private Players waitingPlayers;
 
-    private GameRoomManager() {
+    public GameRoomManager(GameEventPublisher eventPublisher) {
         this.roomRegistry = new RoomRegistry();
         this.roomIdCounter = new AtomicInteger(1);
-        this.eventPublisher = new WebSocketGameEventPublisher(SessionManager.getInstance());
+        this.eventPublisher = eventPublisher;
         this.waitingPlayers = new Players();
-    }
-
-    public static synchronized GameRoomManager getInstance() {
-        if (instance == null) {
-            instance = new GameRoomManager();
-        }
-        return instance;
     }
 
     public synchronized PlayerJoinResult addPlayer(String nickname, GameMode mode) {

@@ -9,9 +9,13 @@ import java.net.Socket;
 
 public class WebSocketHandler {
     private final Socket socket;
+    private final SessionManager sessionManager;
+    private final GameRoomManager gameRoomManager;
 
-    public WebSocketHandler(Socket socket) {
+    public WebSocketHandler(Socket socket, SessionManager sessionManager, GameRoomManager gameRoomManager) {
         this.socket = socket;
+        this.sessionManager = sessionManager;
+        this.gameRoomManager = gameRoomManager;
     }
 
     public void handle() {
@@ -36,8 +40,6 @@ public class WebSocketHandler {
     }
 
     private PlayerJoinContext processPlayerJoin(InputStream in, OutputStream out) throws Exception {
-        GameRoomManager manager = GameRoomManager.getInstance();
-
         while (true) {
             String message = WebSocketFrame.readText(in);
             System.out.println("메시지 수신: " + message);
@@ -48,7 +50,7 @@ public class WebSocketHandler {
 
             System.out.println("플레이어 입장 시도: " + attemptNickname + " (모드: " + mode + ")");
 
-            PlayerJoinResult result = manager.addPlayer(attemptNickname, mode);
+            PlayerJoinResult result = gameRoomManager.addPlayer(attemptNickname, mode);
 
             if (result.isSuccess()) {
                 return registerPlayer(attemptNickname, mode, result);
@@ -60,7 +62,7 @@ public class WebSocketHandler {
 
     private PlayerJoinContext registerPlayer(String nickname, GameMode mode, PlayerJoinResult result) throws Exception {
         WebSocketSession session = new WebSocketSession(socket, nickname);
-        SessionManager.getInstance().add(nickname, session);
+        sessionManager.add(nickname, session);
 
         String welcomeMessage = createWelcomeMessage(mode, result);
         session.send(welcomeMessage);
@@ -119,8 +121,8 @@ public class WebSocketHandler {
 
     private void cleanupPlayer(String nickname) {
         if (nickname != null) {
-            SessionManager.getInstance().remove(nickname);
-            GameRoomManager.getInstance().removePlayer(nickname);
+            sessionManager.remove(nickname);
+            gameRoomManager.removePlayer(nickname);
         }
     }
 
