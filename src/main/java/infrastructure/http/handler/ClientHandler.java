@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-import service.GameService;
 
 public class ClientHandler {
     private final Socket client;

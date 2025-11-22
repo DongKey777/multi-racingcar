@@ -5,7 +5,6 @@ import infrastructure.http.router.Router;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import service.GameService;
 
 public class HttpServer {
     private static final int PORT = 8080;

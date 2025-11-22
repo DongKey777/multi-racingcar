@@ -4,7 +4,6 @@ import infrastructure.http.server.HttpServer;
 import infrastructure.websocket.publisher.WebSocketGameEventPublisher;
 import infrastructure.websocket.session.SessionManager;
 import java.io.IOException;
-import service.GameService;
 
 public class Application {
     public static void main(String[] args) {
