@@ -1,8 +1,9 @@
-package infrastructure.websocket;
+package infrastructure.websocket.handler;
 
 import controller.GameController;
 import domain.game.GameMode;
 import domain.game.PlayerJoinResult;
+import infrastructure.websocket.protocol.WebSocketFrame;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -25,10 +26,9 @@ public class WebSocketHandler {
         ) {
             System.out.println("WebSocket 시작");
 
-            PlayerJoinContext context = processPlayerJoin(in, out);
-            nickname = context.nickname;
+            nickname = processPlayerJoin(in, out);
 
-            processGameMessages(in, context.session, nickname);
+            processGameMessages(in, nickname);
 
         } catch (Exception e) {
             System.out.println("연결 종료 [" + nickname + "]: " + e.getMessage());
@@ -37,7 +37,7 @@ public class WebSocketHandler {
         }
     }
 
-    private PlayerJoinContext processPlayerJoin(InputStream in, OutputStream out) throws Exception {
+    private String processPlayerJoin(InputStream in, OutputStream out) throws Exception {
         while (true) {
             String message = WebSocketFrame.readText(in);
             System.out.println("메시지 수신: " + message);
@@ -52,8 +52,7 @@ public class WebSocketHandler {
                 PlayerJoinResult result = gameController.attemptJoinGame(attemptNickname, mode, socket);
 
                 if (result.isSuccess()) {
-                    WebSocketSession session = new WebSocketSession(socket, attemptNickname);
-                    return new PlayerJoinContext(attemptNickname, session);
+                    return attemptNickname;
                 }
 
                 sendJoinFailureMessage(out, attemptNickname);
@@ -73,7 +72,7 @@ public class WebSocketHandler {
         System.out.println("검증 실패: " + errorMessage);
     }
 
-    private void processGameMessages(InputStream in, WebSocketSession session, String nickname) throws Exception {
+    private void processGameMessages(InputStream in, String nickname) throws Exception {
         while (true) {
             String gameMessage = WebSocketFrame.readText(in);
 
@@ -81,9 +80,7 @@ public class WebSocketHandler {
                 break;
             }
 
-            if (!sendMessageToClient(session, gameMessage, nickname)) {
-                break;
-            }
+            System.out.println("메시지 받음 [" + nickname + "]: " + gameMessage);
         }
     }
 
@@ -93,20 +90,6 @@ public class WebSocketHandler {
             return true;
         }
         return false;
-    }
-
-    private boolean sendMessageToClient(WebSocketSession session, String message, String nickname) {
-        System.out.println("메시지 받음 [" + nickname + "]: " + message);
-
-        if (session == null || !session.isConnected()) {
-            return false;
-        }
-
-        boolean success = session.send("서버: " + message);
-        if (!success) {
-            System.out.println("메시지 전송 실패로 연결 종료 [" + nickname + "]");
-        }
-        return success;
     }
 
     private PlayerInfo parsePlayerInfo(String message) {
@@ -144,16 +127,6 @@ public class WebSocketHandler {
         PlayerInfo(String nickname, GameMode mode) {
             this.nickname = nickname;
             this.mode = mode;
-        }
-    }
-
-    private static class PlayerJoinContext {
-        final String nickname;
-        final WebSocketSession session;
-
-        PlayerJoinContext(String nickname, WebSocketSession session) {
-            this.nickname = nickname;
-            this.session = session;
         }
     }
 }

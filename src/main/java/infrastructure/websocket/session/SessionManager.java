@@ -1,4 +1,4 @@
-package infrastructure.websocket;
+package infrastructure.websocket.session;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

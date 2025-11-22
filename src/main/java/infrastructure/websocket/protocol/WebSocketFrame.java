@@ -1,4 +1,4 @@
-package infrastructure.websocket;
+package infrastructure.websocket.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;

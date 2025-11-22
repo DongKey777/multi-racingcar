@@ -1,5 +1,6 @@
-package infrastructure.websocket;
+package infrastructure.websocket.session;
 
+import infrastructure.websocket.protocol.WebSocketFrame;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;

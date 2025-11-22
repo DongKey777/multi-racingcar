@@ -1,4 +1,4 @@
-package infrastructure.websocket;
+package infrastructure.websocket.protocol;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

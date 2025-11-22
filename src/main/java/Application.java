@@ -1,8 +1,8 @@
 import domain.event.GameEventPublisher;
 import infrastructure.http.router.Router;
 import infrastructure.http.server.HttpServer;
-import infrastructure.websocket.SessionManager;
-import infrastructure.websocket.WebSocketGameEventPublisher;
+import infrastructure.websocket.publisher.WebSocketGameEventPublisher;
+import infrastructure.websocket.session.SessionManager;
 import java.io.IOException;
 import service.GameService;
 

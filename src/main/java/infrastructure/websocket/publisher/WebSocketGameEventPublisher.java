@@ -1,6 +1,7 @@
-package infrastructure.websocket;
+package infrastructure.websocket.publisher;
 
 import domain.event.GameEventPublisher;
+import infrastructure.websocket.session.SessionManager;
 import java.util.List;
 
 public class WebSocketGameEventPublisher implements GameEventPublisher {

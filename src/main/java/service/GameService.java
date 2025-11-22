@@ -12,8 +12,8 @@ import domain.game.RoomCleanupScheduler;
 import domain.game.SingleGameRoom;
 import domain.game.WaitingQueue;
 import domain.vo.RoomId;
-import infrastructure.websocket.SessionManager;
-import infrastructure.websocket.WebSocketSession;
+import infrastructure.websocket.session.SessionManager;
+import infrastructure.websocket.session.WebSocketSession;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
 

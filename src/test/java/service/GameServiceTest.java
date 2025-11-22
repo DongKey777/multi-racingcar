@@ -11,7 +11,7 @@ import static org.mockito.Mockito.when;
 import domain.event.GameEventPublisher;
 import domain.game.GameMode;
 import domain.game.PlayerJoinResult;
-import infrastructure.websocket.SessionManager;
+import infrastructure.websocket.session.SessionManager;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -70,4 +70,3 @@ class GameServiceTest {
     }
 
 }
-
