@@ -17,12 +17,12 @@ import java.util.Map;
 public class ClientHandler {
     private final Socket client;
     private final Router router;
-    private final GameService gameService;
+    private final GameController gameController;
 
-    public ClientHandler(Socket client, Router router, GameService gameService) {
+    public ClientHandler(Socket client, Router router, GameController gameController) {
         this.client = client;
         this.router = router;
-        this.gameService = gameService;
+        this.gameController = gameController;
     }
 
     public void handle() {
@@ -103,8 +103,7 @@ public class ClientHandler {
 
         System.out.println("Handshake 완료");
 
-        GameController controller = new GameController(gameService);
-        WebSocketHandler handler = new WebSocketHandler(client, controller);
+        WebSocketHandler handler = new WebSocketHandler(client, gameController);
         handler.handle();
     }
 

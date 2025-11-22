@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import domain.game.GameMode;
+import domain.game.MatchResult;
 import domain.game.PlayerJoinResult;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -14,48 +15,55 @@ import java.net.Socket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.GameRoomService;
+import service.MatchingService;
+import service.PlayerSessionService;
 
 class GameControllerTest {
 
     private GameController controller;
-    private GameService gameService;
+    private PlayerSessionService sessionService;
+    private MatchingService matchingService;
+    private GameRoomService roomService;
 
     @BeforeEach
     void setUp() {
-        gameService = mock(GameService.class);
-        controller = new GameController(gameService);
+        sessionService = mock(PlayerSessionService.class);
+        matchingService = mock(MatchingService.class);
+        roomService = mock(GameRoomService.class);
+        controller = new GameController(sessionService, matchingService, roomService);
     }
 
     @Test
-    @DisplayName("플레이어 입장을 처리할 수 있다")
-    void attemptJoinGame() throws Exception {
+    @DisplayName("싱글 게임 입장을 처리할 수 있다")
+    void attemptJoinSingleGame() throws Exception {
         Socket socket = mock(Socket.class);
         OutputStream out = new ByteArrayOutputStream();
         when(socket.getOutputStream()).thenReturn(out);
 
-        PlayerJoinResult expectedResult = new PlayerJoinResult(true, 1, false);
-        when(gameService.joinGame("player1", GameMode.MULTI, socket)).thenReturn(expectedResult);
+        PlayerJoinResult result = controller.attemptJoinGame("player1", GameMode.SINGLE, socket);
+
+        assertTrue(result.isSuccess());
+        verify(sessionService).createSession("player1", socket);
+        verify(roomService).createAndStartSingleRoom("player1");
+    }
+
+    @Test
+    @DisplayName("멀티 게임 입장을 처리할 수 있다")
+    void attemptJoinMultiGame() throws Exception {
+        Socket socket = mock(Socket.class);
+        OutputStream out = new ByteArrayOutputStream();
+        when(socket.getOutputStream()).thenReturn(out);
+
+        MatchResult matchResult = MatchResult.waiting(1);
+        when(matchingService.joinQueue("player1")).thenReturn(matchResult);
 
         PlayerJoinResult result = controller.attemptJoinGame("player1", GameMode.MULTI, socket);
 
         assertTrue(result.isSuccess());
-        verify(gameService).joinGame("player1", GameMode.MULTI, socket);
-    }
-
-    @Test
-    @DisplayName("플레이어 입장 실패를 처리할 수 있다")
-    void attemptJoinGameFailure() throws Exception {
-        Socket socket = mock(Socket.class);
-        OutputStream out = new ByteArrayOutputStream();
-        when(socket.getOutputStream()).thenReturn(out);
-
-        PlayerJoinResult expectedResult = new PlayerJoinResult(false, 0, false);
-        when(gameService.joinGame("duplicate", GameMode.MULTI, socket)).thenReturn(expectedResult);
-
-        PlayerJoinResult result = controller.attemptJoinGame("duplicate", GameMode.MULTI, socket);
-
-        assertFalse(result.isSuccess());
-        verify(gameService).joinGame("duplicate", GameMode.MULTI, socket);
+        assertFalse(result.isGameStarted());
+        verify(sessionService).createSession("player1", socket);
+        verify(matchingService).joinQueue("player1");
     }
 
     @Test
@@ -63,6 +71,7 @@ class GameControllerTest {
     void handlePlayerLeave() {
         controller.handlePlayerLeave("player1");
 
-        verify(gameService).leaveGame("player1");
+        verify(matchingService).leaveQueue("player1");
+        verify(sessionService).closeSession("player1");
     }
 }
