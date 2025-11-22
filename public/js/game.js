@@ -63,10 +63,29 @@ function handleNicknameInput(e) {
             return;
         }
 
+        if (nickname.length < 2 || nickname.length > 6) {
+            input.removeEventListener('keydown', handleNicknameInput);
+            showNicknameValidationError(nickname);
+            return;
+        }
+
         input.removeEventListener('keydown', handleNicknameInput);
 
         showConnectButton(nickname);
     }
+}
+
+function showNicknameValidationError(invalidNickname) {
+    const content = document.getElementById('content');
+    content.innerHTML = 'Enter your nickname: ' + invalidNickname + '\n';
+    content.innerHTML += 'Error: Nickname must be between 2 and 6 characters\n\n';
+    content.innerHTML += 'Enter your nickname: <input type="text" id="nickname-input" maxlength="10" autofocus />';
+
+    const input = document.getElementById('nickname-input');
+    setTimeout(() => input.focus(), 100);
+    input.addEventListener('keydown', handleNicknameInput);
+
+    inputMode = 'nickname';
 }
 
 function showConnectButton(nickname) {
@@ -141,7 +160,6 @@ function connectToServer(nickname) {
     ws.onmessage = function (event) {
         console.log('Message received:', event.data);
 
-        // 게임 시작 시 화면 클리어
         if (event.data.includes('게임 시작')) {
             content.innerHTML = '';
             gameState = 'playing';
@@ -192,7 +210,11 @@ function connectToServer(nickname) {
 
     ws.onclose = function () {
         console.log('WebSocket closed');
-        content.innerHTML += 'Connection closed\n';
+
+        if (gameState !== 'playing') {
+            content.innerHTML += 'Connection closed\n';
+        }
+
         ws = null;
     };
 }

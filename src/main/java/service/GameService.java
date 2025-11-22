@@ -71,11 +71,11 @@ public class GameService {
 
     private PlayerJoinResult joinMultiplayerQueue(String nickname, Socket socket) throws Exception {
         try {
-            WebSocketSession session = new WebSocketSession(socket, nickname);
-            sessionManager.add(nickname, session);
-
             MatchResult matchResult = waitingQueue.addPlayer(nickname);
             int waitingCount = matchResult.getWaitingCount();
+
+            WebSocketSession session = new WebSocketSession(socket, nickname);
+            sessionManager.add(nickname, session);
 
             System.out.println("플레이어 입장: " + nickname +
                     " (대기: " + waitingCount + "/" + Players.MAX_PLAYERS + ")");
@@ -91,8 +91,10 @@ public class GameService {
             return PlayerJoinResult.success(waitingCount, false);
 
         } catch (Exception e) {
+            if (sessionManager.hasSession(nickname)) {
+                sessionManager.remove(nickname);
+            }
             waitingQueue.removePlayer(nickname);
-            sessionManager.remove(nickname);
             throw e;
         }
     }
