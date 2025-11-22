@@ -7,6 +7,10 @@ import domain.game.Player;
 import domain.game.Players;
 import domain.game.SingleGameRoom;
 import domain.vo.RoomId;
+import infrastructure.scheduler.RoomCleanupScheduler;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameRoomService {
@@ -34,6 +38,7 @@ public class GameRoomService {
         printSingleRoomInfo(roomId, nickname);
 
         room.start();
+        startSingleGameLoop(room);
         scheduleRoomCleanup(roomId, true);
     }
 
@@ -46,6 +51,7 @@ public class GameRoomService {
         printMultiRoomInfo(roomId, nicknames);
 
         room.start();
+        startMultiGameLoop(room);
         scheduleRoomCleanup(roomId, false);
     }
 
@@ -67,6 +73,26 @@ public class GameRoomService {
     private void printMultiRoomInfo(RoomId roomId, String[] nicknames) {
         System.out.println("\n멀티 게임룸 #" + roomId + " 생성!");
         System.out.println("참가자: " + String.join(", ", nicknames));
+    }
+
+    private void startSingleGameLoop(SingleGameRoom room) {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(() -> {
+            boolean continueGame = room.playNextRound();
+            if (!continueGame) {
+                executor.shutdown();
+            }
+        }, 1, 1, TimeUnit.SECONDS);
+    }
+
+    private void startMultiGameLoop(GameRoom room) {
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(() -> {
+            boolean continueGame = room.playNextRound();
+            if (!continueGame) {
+                executor.shutdown();
+            }
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
     private void scheduleRoomCleanup(RoomId roomId, boolean isSingleRoom) {

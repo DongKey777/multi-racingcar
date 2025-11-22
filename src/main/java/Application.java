@@ -3,6 +3,7 @@ import domain.game.GameRoomRepository;
 import domain.game.WaitingQueue;
 import infrastructure.http.router.Router;
 import infrastructure.http.server.HttpServer;
+import infrastructure.scheduler.RoomCleanupScheduler;
 import infrastructure.websocket.publisher.WebSocketGameEventPublisher;
 import infrastructure.websocket.session.SessionManager;
 import java.io.IOException;
