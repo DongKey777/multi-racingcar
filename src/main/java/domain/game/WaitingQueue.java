@@ -26,4 +26,8 @@ public class WaitingQueue {
     public int getWaitingCount() {
         return players.size();
     }
+
+    public Players getWaitingPlayers() {
+        return players;
+    }
 }

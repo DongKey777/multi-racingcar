@@ -123,7 +123,11 @@ class GameApp {
             this.state.setState('playing');
         }
 
-        this.ui.appendMessage(message);
+        if (message.includes('대기 중...')) {
+            this.ui.updateWaitingMessage(message);
+        } else {
+            this.ui.appendMessage(message);
+        }
 
         if (message.includes('입장 실패')) {
             this.ui.renderRetryNicknameInput();

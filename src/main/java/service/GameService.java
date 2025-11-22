@@ -44,9 +44,12 @@ public class GameService {
     }
 
     private PlayerJoinResult startSinglePlayerGame(String nickname, Socket socket) throws Exception {
+        boolean sessionRegistered = false;
+
         try {
             WebSocketSession session = new WebSocketSession(socket, nickname);
             sessionManager.add(nickname, session);
+            sessionRegistered = true;
 
             RoomId roomId = generateRoomId();
             SingleGameRoom room = new SingleGameRoom(nickname, eventPublisher);
@@ -64,18 +67,25 @@ public class GameService {
             return PlayerJoinResult.success(1, true);
 
         } catch (Exception e) {
-            sessionManager.remove(nickname);
+            if (sessionRegistered) {
+                sessionManager.remove(nickname);
+            }
             throw e;
         }
     }
 
     private PlayerJoinResult joinMultiplayerQueue(String nickname, Socket socket) throws Exception {
-        try {
-            MatchResult matchResult = waitingQueue.addPlayer(nickname);
-            int waitingCount = matchResult.getWaitingCount();
+        boolean sessionRegistered = false;
+        boolean queueAdded = false;
 
+        try {
             WebSocketSession session = new WebSocketSession(socket, nickname);
             sessionManager.add(nickname, session);
+            sessionRegistered = true;
+
+            MatchResult matchResult = waitingQueue.addPlayer(nickname);
+            queueAdded = true;
+            int waitingCount = matchResult.getWaitingCount();
 
             System.out.println("플레이어 입장: " + nickname +
                     " (대기: " + waitingCount + "/" + Players.MAX_PLAYERS + ")");
@@ -88,14 +98,30 @@ public class GameService {
             String welcomeMessage = "입장 성공! 대기 중... (" + waitingCount + "/" + Players.MAX_PLAYERS + ")";
             sessionManager.sendTo(nickname, welcomeMessage);
 
+            notifyWaitingPlayersExcept(nickname, waitingCount);
+
             return PlayerJoinResult.success(waitingCount, false);
 
         } catch (Exception e) {
-            if (sessionManager.hasSession(nickname)) {
+            if (queueAdded) {
+                waitingQueue.removePlayer(nickname);
+            }
+            if (sessionRegistered) {
                 sessionManager.remove(nickname);
             }
-            waitingQueue.removePlayer(nickname);
             throw e;
+        }
+    }
+
+    private void notifyWaitingPlayersExcept(String excludeNickname, int currentCount) {
+        Players waitingPlayers = waitingQueue.getWaitingPlayers();
+        String updateMessage = "대기 중... (" + currentCount + "/" + Players.MAX_PLAYERS + ")";
+
+        for (Player player : waitingPlayers.getPlayers()) {
+            String playerNickname = player.getNickname();
+            if (!playerNickname.equals(excludeNickname)) {
+                sessionManager.sendTo(playerNickname, updateMessage);
+            }
         }
     }
 
@@ -124,10 +150,6 @@ public class GameService {
             } else {
                 roomRepository.removeMultiRoom(roomId);
                 System.out.println("멀티 게임룸 #" + roomId + " 정리 완료");
-            }
-
-            for (String nickname : nicknames) {
-                sessionManager.remove(nickname);
             }
         });
     }

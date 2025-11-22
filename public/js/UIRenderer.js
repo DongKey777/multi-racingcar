@@ -48,6 +48,20 @@ class UIRenderer {
         window.scrollTo(0, document.body.scrollHeight);
     }
 
+    updateWaitingMessage(message) {
+        const lines = this.content.innerHTML.split('\n');
+        const waitingLineIndex = lines.findIndex(line => line.includes('대기 중...'));
+
+        if (waitingLineIndex !== -1) {
+            lines[waitingLineIndex] = message;
+            this.content.innerHTML = lines.join('\n');
+        } else {
+            this.appendMessage(message);
+        }
+
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
     clearScreen() {
         this.content.innerHTML = '';
     }
