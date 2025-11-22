@@ -59,7 +59,7 @@ public class GameService {
             sessionManager.sendTo(nickname, welcomeMessage);
 
             room.start();
-            scheduleRoomCleanup(roomId, true);
+            scheduleRoomCleanup(roomId, true, new String[]{nickname});
 
             return PlayerJoinResult.success(1, true);
 
@@ -111,10 +111,10 @@ public class GameService {
         System.out.println("참가자: " + String.join(", ", nicknames));
 
         room.start();
-        scheduleRoomCleanup(roomId, false);
+        scheduleRoomCleanup(roomId, false, nicknames);
     }
 
-    private void scheduleRoomCleanup(RoomId roomId, boolean isSingleRoom) {
+    private void scheduleRoomCleanup(RoomId roomId, boolean isSingleRoom, String[] nicknames) {
         cleanupScheduler.scheduleCleanup(() -> {
             if (isSingleRoom) {
                 roomRepository.removeSingleRoom(roomId);
@@ -122,6 +122,10 @@ public class GameService {
             } else {
                 roomRepository.removeMultiRoom(roomId);
                 System.out.println("멀티 게임룸 #" + roomId + " 정리 완료");
+            }
+
+            for (String nickname : nicknames) {
+                sessionManager.remove(nickname);
             }
         });
     }
@@ -151,6 +155,7 @@ public class GameService {
         System.out.println("\n서버 통계");
         System.out.println("대기 중: " + waitingQueue.getWaitingCount() + "/" + Players.MAX_PLAYERS);
         System.out.println("진행 중인 게임: " + roomRepository.getTotalRoomCount() + "개");
+        System.out.println("활성 세션: " + sessionManager.getActiveSessionCount() + "개");
         System.out.println("총 생성된 게임: " + (roomIdGenerator.get() - 1) + "개");
     }
 }
