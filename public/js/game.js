@@ -37,6 +37,7 @@ let ws = null;
 let inputMode = 'nickname';
 let currentNickname = null;
 let selectedMode = null;
+let gameState = 'waiting';
 
 function showNicknamePrompt() {
     const content = document.getElementById('content');
@@ -139,6 +140,13 @@ function connectToServer(nickname) {
 
     ws.onmessage = function (event) {
         console.log('Message received:', event.data);
+
+        // 게임 시작 시 화면 클리어
+        if (event.data.includes('게임 시작')) {
+            content.innerHTML = '';
+            gameState = 'playing';
+        }
+
         content.innerHTML += event.data + '\n';
         window.scrollTo(0, document.body.scrollHeight);
 
@@ -172,6 +180,7 @@ function connectToServer(nickname) {
         }
 
         if (event.data.includes('게임 종료') || event.data.includes('최종 우승자')) {
+            gameState = 'finished';
             setTimeout(showRestartButton, 1000);
         }
     };
@@ -217,11 +226,17 @@ function handleRestart() {
     }
 
     hideRestartButton();
-
+    gameState = 'waiting';
     selectedMode = null;
 
     const content = document.getElementById('content');
     content.innerHTML = '';
+
+    content.innerHTML = `racing-game ❯ ./game start
+Starting server...
+Waiting for players...
+
+`;
 
     if (currentNickname) {
         showConnectButton(currentNickname);
