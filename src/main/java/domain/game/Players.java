@@ -36,7 +36,7 @@ public class Players {
         }
 
         if (hasDuplicate(nickname)) {
-            throw new IllegalArgumentException("중복된 닉네임입니다: " + nickname);
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다");
         }
 
         players.add(new Player(nickname));
