@@ -102,7 +102,9 @@ class GameApp {
         this.ui.hideRestartButton();
         this.ui.renderConnecting(nickname, mode);
 
-        this.client = new WebSocketClient('ws://localhost:8080/ws');
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsHost = window.location.host || 'localhost:8080';
+        this.client = new WebSocketClient(`${wsProtocol}${wsHost}/ws`);
         this.client.connect(
             () => this.handleOpen(nickname, mode),
             (message) => this.handleMessage(message),
