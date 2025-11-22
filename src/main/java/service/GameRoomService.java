@@ -5,7 +5,6 @@ import domain.game.GameRoom;
 import domain.game.GameRoomRepository;
 import domain.game.Player;
 import domain.game.Players;
-import domain.game.RoomCleanupScheduler;
 import domain.game.SingleGameRoom;
 import domain.vo.RoomId;
 import java.util.concurrent.atomic.AtomicInteger;

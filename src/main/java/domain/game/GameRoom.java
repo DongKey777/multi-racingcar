@@ -3,27 +3,22 @@ package domain.game;
 import domain.event.GameEventPublisher;
 import domain.vo.Round;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class GameRoom {
     private static final int MAX_ROUNDS = 5;
-    private static final int ROUND_INITIAL_DELAY_SECONDS = 1;
-    private static final int ROUND_INTERVAL_SECONDS = 1;
 
     private final Players players;
-    private final ScheduledExecutorService scheduler;
     private final GameEventPublisher eventPublisher;
     private Round round;
     private boolean gameStarted;
+    private boolean gameEnded;
 
     public GameRoom(String[] nicknames, GameEventPublisher eventPublisher) {
         this.players = new Players(nicknames);
-        this.scheduler = Executors.newScheduledThreadPool(1);
         this.eventPublisher = eventPublisher;
         this.round = new Round(0, MAX_ROUNDS);
         this.gameStarted = false;
+        this.gameEnded = false;
     }
 
     public void start() {
@@ -33,27 +28,26 @@ public class GameRoom {
 
         gameStarted = true;
         System.out.println("\n게임 시작!");
-
         broadcastToPlayers("\n게임 시작!\n");
-
-        scheduler.scheduleAtFixedRate(() -> {
-            playOneRound();
-        }, ROUND_INITIAL_DELAY_SECONDS, ROUND_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private void playOneRound() {
+    public boolean playNextRound() {
+        if (gameEnded) {
+            return false;
+        }
+
         if (round.isLast()) {
             endGame();
-            return;
+            return false;
         }
 
         round = round.next();
         System.out.println("\n=== Round " + round.getCurrent() + " ===");
-
         broadcastToPlayers("\n=== Round " + round.getCurrent() + " ===");
 
         players.moveAll();
         printRoundResult();
+        return true;
     }
 
     private void printRoundResult() {
@@ -69,7 +63,7 @@ public class GameRoom {
     }
 
     private void endGame() {
-        scheduler.shutdown();
+        gameEnded = true;
         broadcastGameEnd();
         announceWinners();
     }
@@ -118,15 +112,9 @@ public class GameRoom {
     }
 
     private void checkAndTerminateIfAllDisconnected(boolean anySessionExists, int connectedCount) {
-        if (anySessionExists && connectedCount == 0 && gameStarted) {
+        if (anySessionExists && connectedCount == 0 && gameStarted && !gameEnded) {
             System.out.println("[경고] 모든 플레이어 연결 끊김 - 게임 중단");
-            endGameEarly();
-        }
-    }
-
-    private void endGameEarly() {
-        if (!scheduler.isShutdown()) {
-            scheduler.shutdownNow();
+            gameEnded = true;
             System.out.println("게임 조기 종료 (연결 끊김)");
         }
     }
@@ -141,5 +129,9 @@ public class GameRoom {
 
     public boolean isGameStarted() {
         return gameStarted;
+    }
+
+    public boolean isGameEnded() {
+        return gameEnded;
     }
 }

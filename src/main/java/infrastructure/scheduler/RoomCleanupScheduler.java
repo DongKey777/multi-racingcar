@@ -1,4 +1,4 @@
-package domain.game;
+package infrastructure.scheduler;
 
 public class RoomCleanupScheduler {
     private static final int CLEANUP_DELAY_SECONDS = 10;

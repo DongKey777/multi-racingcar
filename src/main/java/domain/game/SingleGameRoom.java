@@ -3,22 +3,17 @@ package domain.game;
 import domain.event.GameEventPublisher;
 import domain.vo.Round;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class SingleGameRoom {
     private static final int MAX_ROUNDS = 5;
     private static final String[] AI_NAMES = {"AI_1", "AI_2", "AI_3"};
-    private static final int ROUND_INITIAL_DELAY_SECONDS = 1;
-    private static final int ROUND_INTERVAL_SECONDS = 1;
 
     private final Players players;
     private final String userNickname;
-    private final ScheduledExecutorService scheduler;
     private final GameEventPublisher eventPublisher;
     private Round round;
     private boolean gameStarted;
+    private boolean gameEnded;
 
     public SingleGameRoom(String nickname, GameEventPublisher eventPublisher) {
         this.userNickname = nickname;
@@ -28,10 +23,10 @@ public class SingleGameRoom {
         System.arraycopy(AI_NAMES, 0, allPlayers, 1, AI_NAMES.length);
 
         this.players = new Players(allPlayers);
-        this.scheduler = Executors.newScheduledThreadPool(1);
         this.eventPublisher = eventPublisher;
         this.round = new Round(0, MAX_ROUNDS);
         this.gameStarted = false;
+        this.gameEnded = false;
     }
 
     public void start() {
@@ -41,40 +36,33 @@ public class SingleGameRoom {
 
         gameStarted = true;
         System.out.println("\n싱글 플레이 게임 시작!");
-
         eventPublisher.publish(userNickname, "\n게임 시작! (싱글 플레이 - AI 3명과 경쟁)\n");
-
-        scheduler.scheduleAtFixedRate(() -> {
-            playOneRound();
-        }, ROUND_INITIAL_DELAY_SECONDS, ROUND_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    private void playOneRound() {
+    public boolean playNextRound() {
+        if (gameEnded) {
+            return false;
+        }
+
         if (eventPublisher.hasSession(userNickname) && !eventPublisher.hasActiveSession(userNickname)) {
             System.out.println("[경고] 사용자 연결 끊김 - 싱글 게임 중단");
-            endGameEarly();
-            return;
+            gameEnded = true;
+            System.out.println("싱글 게임 조기 종료 (연결 끊김)");
+            return false;
         }
 
         if (round.isLast()) {
             endGame();
-            return;
+            return false;
         }
 
         round = round.next();
         System.out.println("\n=== Round " + round.getCurrent() + " ===");
-
         eventPublisher.publish(userNickname, "\n=== Round " + round.getCurrent() + " ===");
 
         players.moveAll();
         printRoundResult();
-    }
-
-    private void endGameEarly() {
-        if (!scheduler.isShutdown()) {
-            scheduler.shutdownNow();
-            System.out.println("싱글 게임 조기 종료 (연결 끊김)");
-        }
+        return true;
     }
 
     private void printRoundResult() {
@@ -90,7 +78,7 @@ public class SingleGameRoom {
     }
 
     private void endGame() {
-        scheduler.shutdown();
+        gameEnded = true;
         broadcastGameEnd();
         announceWinners();
     }
@@ -132,5 +120,9 @@ public class SingleGameRoom {
 
     public boolean isGameStarted() {
         return gameStarted;
+    }
+
+    public boolean isGameEnded() {
+        return gameEnded;
     }
 }
