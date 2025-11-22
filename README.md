@@ -9,11 +9,22 @@
 
 **메인 화면**
 
+<img width="400" height="500" alt="스크린샷 2025-11-22 오후 11 38 16" src="https://github.com/user-attachments/assets/f52c6327-8d39-4f63-8f19-cdee3a0b5ed0" />
+
+
+**모드 선택**
+
+<img width="400" height="500" alt="스크린샷 2025-11-22 오후 11 38 57" src="https://github.com/user-attachments/assets/06aa341c-7975-48e8-ab55-96b1f99c785d" />
+
+
 **대기실 (멀티플레이)**
+
+<img width="400" height="500" alt="스크린샷 2025-11-22 오후 11 39 11" src="https://github.com/user-attachments/assets/43793970-d597-4701-a444-814ad4c9d962" />
+
 
 **게임 플레이**
 
-**게임 결과**
+<img width="400" height="800" alt="스크린샷 2025-11-22 오후 11 39 49" src="https://github.com/user-attachments/assets/73b608be-7a79-4b70-b710-c48927c79fb5" />
 
 ---
 
@@ -62,7 +73,7 @@ Multi Racing Car는 최대 4명이 동시에 접속하여 5라운드 동안 경�
 
 **"프레임워크 없이 HTTP/WebSocket 서버 직접 구현"**
 
-기초가 부족했던 저에게 HTTP 서버를 직접 구현하는 것은 완전히 새로운 도전이었습니다. 이번 프로젝트는 "낯선 도구 해커톤" 방향으로, 프레임워크 없이 네트워크 프로토콜부터 게임
+기초가 부족했던 저에게 HTTP 서버를 직접 구현하는 것은 새로운 도전이었습니다. 이번 프로젝트는 "낯선 도구 해커톤" 방향으로, 프레임워크 없이 네트워크 프로토콜부터 게임
 로직까지 직접 구현하는 것을 목표로 했습니다.
 
 ### 개발 전략: 단계적 확장
