@@ -19,7 +19,7 @@ public class MatchingService {
         MatchResult result = waitingQueue.addPlayer(nickname);
 
         if (!result.isMatched()) {
-            notifyOtherWaitingPlayers(nickname, result.getWaitingCount());
+            notifyAllWaitingPlayers(result.getWaitingCount());
         }
 
         return result;
@@ -29,14 +29,12 @@ public class MatchingService {
         waitingQueue.removePlayer(nickname);
     }
 
-    private void notifyOtherWaitingPlayers(String newPlayer, int totalCount) {
+    private void notifyAllWaitingPlayers(int totalCount) {
         Players waitingPlayers = waitingQueue.getWaitingPlayers();
         String message = createWaitingMessage(totalCount);
 
         for (Player player : waitingPlayers.getPlayers()) {
-            if (!player.getNickname().equals(newPlayer)) {
-                sessionManager.sendTo(player.getNickname(), message);
-            }
+            sessionManager.sendTo(player.getNickname(), message);
         }
     }
 

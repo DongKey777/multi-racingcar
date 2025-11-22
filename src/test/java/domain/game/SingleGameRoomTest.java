@@ -29,25 +29,24 @@ class SingleGameRoomTest {
 
     @Test
     @DisplayName("싱글 게임을 시작할 수 있다")
-    void startSingleGame() throws InterruptedException {
+    void startSingleGame() {
         String nickname = "동훈";
         GameEventPublisher eventPublisher = mock(GameEventPublisher.class);
         SingleGameRoom room = new SingleGameRoom(nickname, eventPublisher);
 
         room.start();
-        Thread.sleep(100);
 
         assertTrue(room.isGameStarted());
+        assertFalse(room.isGameEnded());
     }
 
     @Test
     @DisplayName("이미 시작된 게임은 다시 시작할 수 없다")
-    void cannotStartGameTwice() throws InterruptedException {
+    void cannotStartGameTwice() {
         String nickname = "동훈";
         GameEventPublisher eventPublisher = mock(GameEventPublisher.class);
         SingleGameRoom room = new SingleGameRoom(nickname, eventPublisher);
         room.start();
-        Thread.sleep(100);
 
         assertThrows(IllegalStateException.class, () -> {
             room.start();
@@ -56,28 +55,31 @@ class SingleGameRoomTest {
 
     @Test
     @DisplayName("라운드가 진행된다")
-    void roundProgresses() throws InterruptedException {
+    void roundProgresses() {
         String nickname = "동훈";
         GameEventPublisher eventPublisher = mock(GameEventPublisher.class);
         SingleGameRoom room = new SingleGameRoom(nickname, eventPublisher);
 
         room.start();
-        Thread.sleep(1500);
+        room.playNextRound();
 
-        assertTrue(room.getCurrentRound() >= 1);
+        assertEquals(1, room.getCurrentRound());
     }
 
     @Test
     @DisplayName("5라운드 후 게임이 종료된다")
-    void gameEndsAfterFiveRounds() throws InterruptedException {
+    void gameEndsAfterFiveRounds() {
         String nickname = "동훈";
         GameEventPublisher eventPublisher = mock(GameEventPublisher.class);
         SingleGameRoom room = new SingleGameRoom(nickname, eventPublisher);
 
         room.start();
-        Thread.sleep(7000);
+        for (int i = 0; i < 6; i++) {
+            room.playNextRound();
+        }
 
         assertEquals(5, room.getCurrentRound());
+        assertTrue(room.isGameEnded());
     }
 
     @Test
