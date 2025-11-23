@@ -96,19 +96,28 @@ public class GameRoom {
         boolean anySessionExists = false;
 
         for (Player player : players.getPlayers()) {
-            String nickname = player.getNickname();
-            if (!eventPublisher.hasSession(nickname)) {
-                continue;
-            }
-
-            anySessionExists = true;
-            if (eventPublisher.hasActiveSession(nickname)) {
-                eventPublisher.publish(nickname, message);
+            if (sendMessageTo(player, message)) {
                 connectedCount++;
+                anySessionExists = true;
+            } else if (hasSession(player)) {
+                anySessionExists = true;
             }
         }
 
         checkAndTerminateIfAllDisconnected(anySessionExists, connectedCount);
+    }
+
+    private boolean sendMessageTo(Player player, String message) {
+        String nickname = player.getNickname();
+        if (!eventPublisher.hasActiveSession(nickname)) {
+            return false;
+        }
+        eventPublisher.publish(nickname, message);
+        return true;
+    }
+
+    private boolean hasSession(Player player) {
+        return eventPublisher.hasSession(player.getNickname());
     }
 
     private void checkAndTerminateIfAllDisconnected(boolean anySessionExists, int connectedCount) {

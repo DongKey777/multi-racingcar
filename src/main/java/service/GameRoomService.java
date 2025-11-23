@@ -77,33 +77,53 @@ public class GameRoomService {
 
     private void startSingleGameLoop(SingleGameRoom room) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(() -> {
-            boolean continueGame = room.playNextRound();
-            if (!continueGame) {
-                executor.shutdown();
-            }
-        }, 1, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(
+                () -> playRoundAndStop(room, executor),
+                1, 1, TimeUnit.SECONDS
+        );
+    }
+
+    private void playRoundAndStop(SingleGameRoom room, ScheduledExecutorService executor) {
+        boolean continueGame = room.playNextRound();
+        if (!continueGame) {
+            executor.shutdown();
+        }
     }
 
     private void startMultiGameLoop(GameRoom room) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(() -> {
-            boolean continueGame = room.playNextRound();
-            if (!continueGame) {
-                executor.shutdown();
-            }
-        }, 1, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(
+                () -> playRoundAndStop(room, executor),
+                1, 1, TimeUnit.SECONDS
+        );
+    }
+
+    private void playRoundAndStop(GameRoom room, ScheduledExecutorService executor) {
+        boolean continueGame = room.playNextRound();
+        if (!continueGame) {
+            executor.shutdown();
+        }
     }
 
     private void scheduleRoomCleanup(RoomId roomId, boolean isSingleRoom) {
-        scheduler.scheduleCleanup(() -> {
-            if (isSingleRoom) {
-                repository.removeSingleRoom(roomId);
-                System.out.println("싱글 게임룸 #" + roomId + " 정리 완료");
-            } else {
-                repository.removeMultiRoom(roomId);
-                System.out.println("멀티 게임룸 #" + roomId + " 정리 완료");
-            }
-        });
+        scheduler.scheduleCleanup(() -> removeRoom(roomId, isSingleRoom));
+    }
+
+    private void removeRoom(RoomId roomId, boolean isSingleRoom) {
+        if (isSingleRoom) {
+            removeSingleRoom(roomId);
+            return;
+        }
+        removeMultiRoom(roomId);
+    }
+
+    private void removeSingleRoom(RoomId roomId) {
+        repository.removeSingleRoom(roomId);
+        System.out.println("싱글 게임룸 #" + roomId + " 정리 완료");
+    }
+
+    private void removeMultiRoom(RoomId roomId) {
+        repository.removeMultiRoom(roomId);
+        System.out.println("멀티 게임룸 #" + roomId + " 정리 완료");
     }
 }
