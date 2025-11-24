@@ -4,27 +4,12 @@
 우아한테크코스 8기 오픈미션 프로젝트
 
 ---
+**🎮 게임 플레이: https://multi-racing-car.com**
 
-## 게임 화면
+**📚 개발 기록 : https://dongkey.tech/**
 
-**메인 화면**
-
-<img width="400" height="500" alt="스크린샷 2025-11-22 오후 11 38 16" src="https://github.com/user-attachments/assets/f52c6327-8d39-4f63-8f19-cdee3a0b5ed0" />
-
-
-**모드 선택**
-
-<img width="400" height="500" alt="스크린샷 2025-11-22 오후 11 38 57" src="https://github.com/user-attachments/assets/06aa341c-7975-48e8-ab55-96b1f99c785d" />
-
-
-**대기실 (멀티플레이)**
-
-<img width="400" height="500" alt="스크린샷 2025-11-22 오후 11 39 11" src="https://github.com/user-attachments/assets/43793970-d597-4701-a444-814ad4c9d962" />
-
-
-**게임 플레이**
-
-<img width="400" height="800" alt="스크린샷 2025-11-22 오후 11 39 49" src="https://github.com/user-attachments/assets/73b608be-7a79-4b70-b710-c48927c79fb5" />
+ 
+<img width="377" height="716" alt="mult-racingcar-game-main" src="https://github.com/user-attachments/assets/c7cbf68e-7c02-42c0-9cde-e67048a230e0" />
 
 ---
 
@@ -32,9 +17,7 @@
 
 ### 게임 개요
 
-Multi Racing Car는 최대 4명이 동시에 접속하여 5라운드 동안 경주하는 실시간 멀티플레이어 게임입니다. 플레이어는 닉네임을 입력하고 대기열에 참가하며, 4명이 모이면 자동으로 게임이 시작됩니다.
-
-**🎮 게임 플레이: https://multi-racing-car.com**
+Multi Racing Car는 게임당 4명이 참가하여 5라운드 동안 경주하는 실시간 멀티플레이 게임입니다.
 
 ### 게임 모드
 
@@ -71,21 +54,30 @@ Multi Racing Car는 최대 4명이 동시에 접속하여 5라운드 동안 경�
 
 ## 게임 플레이 방법
 
+### 게임 영상 
+![제목 없음 2025년 11월 24일](https://github.com/user-attachments/assets/da6e86d7-5009-4bbd-85f5-8791ba43fd2a)
+
+
+
 ### 멀티플레이
 
-1. 브라우저 창을 4개 열기
-2. 각각 다른 닉네임 입력 (2~6자)
+1. https://multi-racing-car.com 접속
+2. 닉네임 입력 (2~6자, 중복 불가)
 3. "Multiplayer" 선택
-4. 4명이 모이면 자동으로 게임 시작
-5. 5라운드 자동 진행 (1초 간격)
-6. 우승자 발표 후 "Restart" 버튼으로 재시작
+4. 대기열에서 다른 플레이어 3명 대기
+5. 4명이 모이면 자동으로 게임 시작
+6. 5라운드 자동 진행 (1초 간격)
+7. 우승자 발표 후 "Restart" 버튼으로 재시작
 
 ### 싱글플레이
 
-1. 브라우저 1개만 열기
-2. 닉네임 입력
+1. https://multi-racing-car.com 접속
+2. 닉네임 입력 (2~6자)
 3. "Single Player" 선택
 4. AI 3명(AI_1, AI_2, AI_3)과 즉시 게임 시작
+5. 5라운드 자동 진행 (1초 간격)
+6. 우승자 발표 후 "Restart" 버튼으로 재시작
+
 
 ---
 
@@ -94,9 +86,6 @@ Multi Racing Car는 최대 4명이 동시에 접속하여 5라운드 동안 경�
 ### 미션 선정
 
 **"프레임워크 없이 HTTP/WebSocket 서버 직접 구현"**
-
-기초가 부족했던 저에게 HTTP 서버를 직접 구현하는 것은 새로운 도전이었습니다. 이번 프로젝트는 "낯선 도구 해커톤" 방향으로, 프레임워크 없이 네트워크 프로토콜부터 게임
-로직까지 직접 구현하는 것을 목표로 했습니다.
 
 ### 개발 전략: 단계적 확장
 
@@ -125,7 +114,7 @@ Multi Racing Car는 최대 4명이 동시에 접속하여 5라운드 동안 경�
 
 #### 1. 네트워크 동작 원리 이해
 
-Spring Boot를 쓴다면 `@RestController`만 써도 HTTP 통신이 됩니다. 하지만 **어떻게** 작동하는 지 이해하고 싶었습니다.
+프레임워크를 사용하면 HTTP 서버와 WebSocket 통신을 쉽게 구현할 수 있습니다. 하지만 **어떻게** 작동하는 지 이해하고 싶었습니다.
 
 - HTTP 요청은 어떻게 파싱되는가?
 - WebSocket Handshake는 어떤 과정을 거치는가?
@@ -198,8 +187,6 @@ Infrastructure Layer (구현체)
 - 세션 동시 접근 문제
 
 이를 해결하기 위해 ConcurrentHashMap, AtomicInteger, ScheduledExecutorService 등을 활용했습니다.
-
-이 경험을 통해 "프레임워크에 맞춰 코드를 짜는 것"과 "구조를 스스로 설계하는 것"의 차이를 배웠습니다.
 
 ---
 
