@@ -14,7 +14,6 @@ body {
     white-space: pre-wrap;
 }
 
-/* input 스타일 추가 */
 input[type="text"] {
     background: transparent;
     border: none;
@@ -72,7 +71,6 @@ button:hover {
     }
 }
 
-/* Home Screen Styles */
 #home-screen {
     display: block;
 }
