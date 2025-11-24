@@ -6,29 +6,83 @@
     <title>racing-game</title>
     <link rel="stylesheet" href="/css/terminal.css">
 </head>
-<body><span id="last-login"></span>
-~ ❯ cd racing-game
-racing-game ❯ ./game --info
+<body>
+<!-- HOME SCREEN -->
+<div id="home-screen">
+    <span id="last-login"></span>
+    ~ ❯ cd racing-game
+    racing-game ❯ ls -la
 
-MULTIPLAYER RACING GAME
-Players: 4
+    total 24
+    drwxr-xr-x 3 player staff 96 Nov 24 2025 .
+    drwxr-xr-x 5 player staff 160 Nov 24 2025 ..
+    -rwxr-xr-x 1 player staff 4096 Nov 24 2025 game
+    -rw-r--r-- 1 player staff 512 Nov 24 2025 README.md
 
-racing-game ❯ ./game start
-Starting server...
-Waiting for players...
+    racing-game ❯ cat README.md
 
-<div id="mode-selection" style="display: none;">
-    Select game mode:
-    [1] Single Player (play alone)
-    [2] Multiplayer (4 players)
+    ██████╗ █████╗ ██████╗██╗███╗ ██╗ ██████╗
+    ██╔══██╗██╔══██╗██╔════╝██║████╗ ██║██╔════╝
+    ██████╔╝███████║██║ ██║██╔██╗ ██║██║ ███╗
+    ██╔══██╗██╔══██║██║ ██║██║╚██╗██║██║ ██║
+    ██║ ██║██║ ██║╚██████╗██║██║ ╚████║╚██████╔╝
+    ╚═╝ ╚═╝╚═╝ ╚═╝ ╚═════╝╚═╝╚═╝ ╚═══╝ ╚═════╝
 
-    <button id="single-mode-btn" data-mode="SINGLE">Single Player</button>
-    <button id="multi-mode-btn" data-mode="MULTI">Multiplayer</button>
+    ██████╗ █████╗ ███╗ ███╗███████╗
+    ██╔════╝ ██╔══██╗████╗ ████║██╔════╝
+    ██║ ███╗███████║██╔████╔██║█████╗
+    ██║ ██║██╔══██║██║╚██╔╝██║██╔══╝
+    ╚██████╔╝██║ ██║██║ ╚═╝ ██║███████╗
+    ╚═════╝ ╚═╝ ╚═╝╚═╝ ╚═╝╚══════╝
+
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    MULTIPLAYER RACING GAME - Terminal Edition
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    [FEATURES]
+    • Real-time multiplayer racing (up to 4 players)
+    • Single player mode with AI opponents
+    • WebSocket-based live gameplay
+    • Retro terminal aesthetics
+
+    [SYSTEM INFO]
+    Server: https://multi-racing-car.com
+    Version: 1.0.0
+    Status: 🟢 ONLINE
+
+    racing-game ❯ <span class="cursor"></span>
+
+    <div id="start-btn-wrapper">
+        <button id="game-start-btn">./game --start</button>
+    </div>
 </div>
 
-<span id="content"></span>
-<div id="restart-section" style="display: none;">
-    <button id="restart-btn">Restart Game</button>
+<!-- GAME SCREEN -->
+<div id="game-screen" style="display: none;">
+    <span id="last-login-game"></span>
+    ~ ❯ cd racing-game
+    racing-game ❯ ./game --info
+
+    MULTIPLAYER RACING GAME
+    Players: 4
+
+    racing-game ❯ ./game start
+    Starting server...
+    Waiting for players...
+
+    <div id="mode-selection" style="display: none;">
+        Select game mode:
+        [1] Single Player (play alone)
+        [2] Multiplayer (4 players)
+
+        <button id="single-mode-btn" data-mode="SINGLE">Single Player</button>
+        <button id="multi-mode-btn" data-mode="MULTI">Multiplayer</button>
+    </div>
+
+    <span id="content"></span>
+    <div id="restart-section" style="display: none;">
+        <button id="restart-btn">Restart Game</button>
+    </div>
 </div>
 <script src="/js/NicknameValidator.js"></script>
 <script src="/js/GameState.js"></script>

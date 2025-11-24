@@ -71,3 +71,36 @@ button:hover {
         opacity: 0;
     }
 }
+
+/* Home Screen Styles */
+#home-screen {
+    display: block;
+}
+
+#start-btn-wrapper {
+    margin-top: 16px;
+    padding-top: 8px;
+}
+
+#game-start-btn {
+    background: none;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 8px 24px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    margin: 8px 0;
+    display: inline-block;
+    transition: all 0.2s;
+}
+
+#game-start-btn:hover {
+    background: #00ff00;
+    color: #000000;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+#game-start-btn:active {
+    transform: scale(0.98);
+}
