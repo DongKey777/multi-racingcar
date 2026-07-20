@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class ClientHandler {
     private static final int HEADER_READ_TIMEOUT_MILLIS = 10_000;
@@ -59,7 +59,7 @@ public class ClientHandler {
     }
 
     private Map<String, String> parseHeaders(BufferedReader in) throws IOException {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         while (true) {
             String line = in.readLine();
