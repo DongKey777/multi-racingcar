@@ -39,7 +39,10 @@ public class WebSocketHandler {
 
     private String processPlayerJoin(InputStream in, OutputStream out) throws Exception {
         while (true) {
-            String message = WebSocketFrame.readText(in);
+            String message = WebSocketFrame.readText(in, out);
+            if (message == null) {
+                throw new IllegalStateException("연결 종료");
+            }
             System.out.println("메시지 수신: " + message);
 
             PlayerInfo playerInfo = parsePlayerInfo(message);
@@ -74,7 +77,7 @@ public class WebSocketHandler {
 
     private void processGameMessages(InputStream in, String nickname) throws Exception {
         while (true) {
-            String gameMessage = WebSocketFrame.readText(in);
+            String gameMessage = WebSocketFrame.readText(in, socket.getOutputStream());
 
             if (isConnectionClosed(gameMessage, nickname)) {
                 break;
