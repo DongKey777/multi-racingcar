@@ -11,7 +11,7 @@ import service.MatchingService;
 import service.PlayerSessionService;
 
 public class HttpServer {
-    private static final int PORT = 8080;
+    private static final int DEFAULT_PORT = 8080;
     private final Router router;
     private final GameController gameController;
     private final ClientThreadManager threadManager;
@@ -28,8 +28,9 @@ public class HttpServer {
     }
 
     public void start() throws IOException {
-        ServerSocket server = new ServerSocket(PORT);
-        System.out.println("서버 시작! http://localhost:8080 접속 가능");
+        int port = resolvePort();
+        ServerSocket server = new ServerSocket(port);
+        System.out.printf("서버 시작! http://localhost:%d 접속 가능%n", port);
 
         while (true) {
             Socket client = server.accept();
@@ -38,5 +39,13 @@ public class HttpServer {
             ClientHandler handler = new ClientHandler(client, router, gameController);
             threadManager.execute(handler::handle);
         }
+    }
+
+    private int resolvePort() {
+        String configuredPort = System.getenv("PORT");
+        if (configuredPort == null || configuredPort.isBlank()) {
+            return DEFAULT_PORT;
+        }
+        return Integer.parseInt(configuredPort);
     }
 }

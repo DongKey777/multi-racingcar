@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: multi-racingcar
+    runtime: docker
+    plan: free
+    region: singapore
+    repo: https://github.com/DongKey777/multi-racingcar.git
+    branch: main
+    autoDeployTrigger: commit
+    healthCheckPath: /
+    domains:
+      - multi-racing-car.com
