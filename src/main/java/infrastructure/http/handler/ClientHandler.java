@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientHandler {
+    private static final int HEADER_READ_TIMEOUT_MILLIS = 10_000;
     private final Socket client;
     private final Router router;
     private final GameController gameController;
@@ -32,6 +33,7 @@ public class ClientHandler {
                 );
                 OutputStream out = client.getOutputStream()
         ) {
+            client.setSoTimeout(HEADER_READ_TIMEOUT_MILLIS);
             String requestLine = in.readLine();
             if (requestLine == null) {
                 return;
@@ -93,6 +95,7 @@ public class ClientHandler {
 
     private void handleWebSocket(Map<String, String> headers, OutputStream out)
             throws IOException {
+        client.setSoTimeout(0);
         System.out.println("WebSocket Handshake");
 
         String clientKey = headers.get("Sec-WebSocket-Key");

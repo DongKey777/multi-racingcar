@@ -37,7 +37,10 @@ public class HttpServer {
             System.out.println("연결 완료");
 
             ClientHandler handler = new ClientHandler(client, router, gameController);
-            threadManager.execute(handler::handle);
+            if (!threadManager.execute(handler::handle)) {
+                System.err.println("연결 한도 초과: 요청 거부");
+                client.close();
+            }
         }
     }
 
